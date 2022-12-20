@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#define led_pin 16
 
 void setup() {
   // put your setup code here, to run once:
