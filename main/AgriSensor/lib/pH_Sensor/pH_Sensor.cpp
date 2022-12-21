@@ -1,16 +1,18 @@
 #include "Arduino.h"
 #include "pH_Sensor.h"
-
+int pH_Pin = 0;
 
 pHSensor::pHSensor(int pin)
 {
   pinMode(pin, INPUT);
   _pin = pin;
+  pH_Pin = pin;
 }
 
 void pHSensor::setup()
 {
-    Serial.println("[INFO] : The pH sensor is set up ");
+    Serial.print("[INFO] : The pH sensor is set up on pin ");
+    Serial.println(pH_Pin);
 }
 
 

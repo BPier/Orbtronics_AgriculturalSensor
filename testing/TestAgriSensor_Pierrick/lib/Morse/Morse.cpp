@@ -34,7 +34,12 @@ void Morse::letter(char letterchar)
   case 'a':
     Morse::dot();Morse::dash();
     break;
-  
+  case 'b':
+    Morse::dash();Morse::dot();Morse::dot();Morse::dot();
+    break;
+  case 'c':
+    Morse::dot();Morse::dash();
+    break;
   default:
     break;
   }
