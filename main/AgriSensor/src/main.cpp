@@ -3,6 +3,7 @@
 #include <Moisture_Sensor.h>
 #include <Temp_Sensor.h>
 #include <Data_Storage.h>
+#include <Time_lib.h>
 
 // pH Variables
 #define pH_Pin 33
@@ -24,7 +25,9 @@ float Temperature_Value = 0.0;
 DataStorage Data_S;
 
 // Time Management Variable
-
+Timelib Time_l;
+char* Formated_time = "EMPTY";
+unsigned long TimeMillis = 0;
 
 // ================= SETUP ====================
 void setup() {
@@ -62,9 +65,14 @@ void loop() {
   Serial.print(Temperature_Value,1);
   Serial.println("°C");
 
+  // Get Time
+  TimeMillis = Time_l.GetTime();
+  Formated_time = Time_l.FormatTime(TimeMillis);
+  Serial.print("[INFO] - Time is ");
+  Serial.println(Formated_time);
 
   // Store the data
-  Data_S.writedata();
+  Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
 
 
   delay(5000);
