@@ -1,14 +1,12 @@
-#ifndef Moisture_Sensor_h
-#define Moisture_Sensor_h
+#ifndef Temp_Sensor_h
+#define Temp_Sensor_h
 
 #include "Arduino.h"
 
-class MoistureSensor
+class TempSensor
 {
   public:
-
-    
-    MoistureSensor(int pin);
+    TempSensor(int pin);
     void setup();
     float read();
     void calibrate();

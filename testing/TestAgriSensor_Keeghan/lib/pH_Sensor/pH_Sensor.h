@@ -1,14 +1,12 @@
-#ifndef Moisture_Sensor_h
-#define Moisture_Sensor_h
+#ifndef pH_Sensor_h
+#define pH_Sensor_h
 
 #include "Arduino.h"
 
-class MoistureSensor
+class pHSensor
 {
   public:
-
-    
-    MoistureSensor(int pin);
+    pHSensor(int pin);
     void setup();
     float read();
     void calibrate();
