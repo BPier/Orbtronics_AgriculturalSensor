@@ -9,7 +9,7 @@ class DataStorage
     DataStorage();
     void setup();
     void read();
-    void writedata();
+    void writedata(float pH, float Moisture, float Temp);
   private:
     int _pin;
 };
