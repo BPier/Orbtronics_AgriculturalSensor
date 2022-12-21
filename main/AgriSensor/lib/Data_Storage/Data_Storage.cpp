@@ -24,6 +24,7 @@ void DataStorage::read()
 
 void DataStorage::writedata(float pH, float Moisture, float Temp)
 {
+  
   static char time[30];
   Timelib Time_l;
   char* Formated_time = "EMPTY";
@@ -32,5 +33,5 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
   Formated_time = Time_l.FormatTime(TimeMillis);
 
   Serial.println("[INFO] : The following data is stored ");
-  Serial.println(Formated_time);
+  Serial.println(Formated_time+"-");
 }

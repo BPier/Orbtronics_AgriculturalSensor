@@ -1,34 +1,24 @@
-#include <stdio.h>
-#include <OneWire.h>
-#include <DallasTemperature.h>
-float Temp_value = 0;
+#include "Arduino.h"
+#include <Temp_Sensor.h>
 
-// Data wire is plugged into digital pin 2 on the Arduino
-#define ONE_WIRE_BUS 17
+// Temperature Variables
+#define Temp_Pin 17
+TempSensor Temp_S(Temp_Pin);
+float Temperature_Value = 0.0;
 
-// Setup a oneWire instance to communicate with any OneWire device
-OneWire oneWire(ONE_WIRE_BUS);	
-
-// Pass oneWire reference to DallasTemperature library
-DallasTemperature sensors(&oneWire);
-
-float read_temp(){
-  // Send the command to get temperatures
-  sensors.requestTemperatures(); 
-  return sensors.getTempCByIndex(0);
-}
 
 void setup(void)
 {
-  sensors.begin();	// Start up the library
+  // sensors1.begin();	// Start up the library
+  Temp_S.setup();
   Serial.begin(115200);
 }
 
 void loop(void)
 { 
-  Temp_value =  read_temp();
-  Serial.println(Temp_value);
-  delay(3000);
   Serial.println("------------------------");
+  Temperature_Value = Temp_S.read();
+  Serial.print("Temperature from Library :");Serial.println(Temperature_Value);
+  delay(3000);
 }
 

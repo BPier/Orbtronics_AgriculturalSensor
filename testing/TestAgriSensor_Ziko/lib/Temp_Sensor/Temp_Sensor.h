@@ -2,6 +2,9 @@
 #define Temp_Sensor_h
 
 #include "Arduino.h"
+#include <stdio.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 class TempSensor
 {
