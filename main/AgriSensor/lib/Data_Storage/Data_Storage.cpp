@@ -33,5 +33,5 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
   Formated_time = Time_l.FormatTime(TimeMillis);
 
   Serial.println("[INFO] : The following data is stored ");
-  Serial.println(Formated_time+"-");
+  Serial.println(Formated_time);
 }
