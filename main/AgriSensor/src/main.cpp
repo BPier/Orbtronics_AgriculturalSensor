@@ -72,7 +72,7 @@ void loop() {
   Serial.println(Formated_time);
 
   // Store the data
-  // Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+  Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
 
 
   delay(5000);
