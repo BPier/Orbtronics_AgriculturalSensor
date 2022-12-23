@@ -12,9 +12,9 @@ float pH_Value = 0.0;
 
 // Moisture Variable
 // Moisture is displayed has Volumetric Water Content from 0-100%
-#define Moist_Pin 35
+#define Moist_Pin 32
 MoistureSensor Moist_S(Moist_Pin);
-float Moisture_Value = 0.0;
+int Moisture_Value = 0;
 
 // Temperature Variables
 #define Temp_Pin 25

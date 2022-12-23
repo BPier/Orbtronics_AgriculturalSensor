@@ -7,6 +7,14 @@ int DryValue_Mapped = 0;
 int WetValue_Mapped = 100;
 int MoistureValue=0;
 
+void setup() {
+  Serial.begin(115200);
+}
+void loop() {
+  delay(5000);
+  MoistureValue = readMoisture(); 
+  Serial.print(MoistureValue);
+}
 
  int readMoisture() {
 
@@ -21,13 +29,6 @@ int MoistureValue=0;
   Serial.print(MappedValue);
   Serial.println("%");
   return MappedValue;
-};
-void setup() {
-  Serial.begin(115200);
-}
-void loop() {
-  delay(5000);
-  MoistureValue = readMoisture(); 
-  Serial.print(MoistureValue);
-}
 
+
+ };
