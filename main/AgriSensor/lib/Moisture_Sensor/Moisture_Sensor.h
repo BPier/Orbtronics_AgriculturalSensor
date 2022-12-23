@@ -7,7 +7,6 @@ class MoistureSensor
 {
   public:
 
-    
     MoistureSensor(int pin);
     void setup();
     float read();
