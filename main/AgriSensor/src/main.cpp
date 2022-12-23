@@ -59,17 +59,17 @@ void loop() {
   Serial.print(Moisture_Value,0);
   Serial.println("%");
 
-  // // Read and Diplay the soil Temperature
-  // Temperature_Value = Temp_S.read();
-  // Serial.print("[DATA] - Soil Temperature is ");
-  // Serial.print(Temperature_Value,1);
-  // Serial.println("°C");
+  // Read and Diplay the soil Temperature
+  Temperature_Value = Temp_S.read();
+  Serial.print("[DATA] - Soil Temperature is ");
+  Serial.print(Temperature_Value,1);
+  Serial.println("°C");
 
-  // // Get Time
-  // TimeMillis = Time_l.GetTime();
-  // Formated_time = Time_l.FormatTime(TimeMillis);
-  // Serial.print("[INFO] - Time is ");
-  // Serial.println(Formated_time);
+  // Get Time
+  TimeMillis = Time_l.GetTime();
+  Formated_time = Time_l.FormatTime(TimeMillis);
+  Serial.print("[INFO] - Time is ");
+  Serial.println(Formated_time);
 
   // Store the data
   // Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);

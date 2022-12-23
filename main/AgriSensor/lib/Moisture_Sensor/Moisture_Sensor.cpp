@@ -18,7 +18,8 @@ void MoistureSensor::setup()
 float MoistureSensor::read()
 {
     // rawValue = analogRead(_pin);
-    // return rawValue;
+    float rawValue = 1000;
+    return rawValue;
 }
 
 void MoistureSensor::calibrate()
