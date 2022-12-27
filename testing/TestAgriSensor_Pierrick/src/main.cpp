@@ -1,50 +1,29 @@
-#include <Arduino.h>
+#include "Arduino.h"
+#include "Data_Storage.h"
 
-#define LED 33
-RTC_DATA_ATTR unsigned long millisOffset = 0;
+#define FORMAT_SPIFFS_IF_FAILED true
 
-// unsigned long offsetMillis(unsigned long Offset)
-// {
-//     return millis() + Offset;
-// }
+DataStorage Data_S;
 
-// #define uS_TO_mS_FACTOR 1000  /* Conversion factor for micro seconds to miliseconds */
-
-// void sleepSensor(unsigned long sleepMillis)
-// {
-//     esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_mS_FACTOR);
-//     millisOffset = offsetMillis() + sleepMillis;
-//     esp_deep_sleep_start();
-// }
-
-void printTime(unsigned long milliseconds)
-{
-    unsigned long seconds, sec, min, hrs;
-
-    // seconds = offsetMillis() / 1000;
-    seconds = milliseconds /1000;
-    sec = seconds % 60;
-    seconds /= 60;
-    min = seconds % 60;    
-    seconds /= 60;
-    hrs = seconds % 24;
-
-    Serial.printf("%02d:%02d:%02d\n", hrs, min, sec);
-}
-
-
-void setup() {
+void setup(){
     Serial.begin(115200);
-    pinMode(LED,OUTPUT);
+    if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
     
+    Data_S.listDir(SPIFFS, "/", 0);
+    Data_S.writeFile(SPIFFS, "/hello.txt", "Hello ");
+    Data_S.appendFile(SPIFFS, "/hello.txt", "World! 002\r\n");
+    Data_S.readFile(SPIFFS, "/hello.txt");
+    Data_S.renameFile(SPIFFS, "/hello.txt", "/foo.txt");
+    Data_S.readFile(SPIFFS, "/foo.txt");
+    Data_S.deleteFile(SPIFFS, "/foo.txt");
+    Data_S.testFileIO(SPIFFS, "/test.txt");
+    Data_S.deleteFile(SPIFFS, "/test.txt");
+    Serial.println( "Test complete" );
 }
 
-void loop() {
-    printTime(millisOffset);
-    digitalWrite(LED,HIGH);
-    delay(1000);
-//   sleepSensor(5000);
-    esp_sleep_enable_timer_wakeup(5000000);
-    millisOffset = millisOffset + millis() + 30;
-    esp_deep_sleep_start();
+void loop(){
+
 }
