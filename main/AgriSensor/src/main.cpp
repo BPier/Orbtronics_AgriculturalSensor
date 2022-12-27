@@ -6,7 +6,7 @@
 #include <Time_lib.h>
 
 // pH Variables
-#define pH_Pin 33
+#define pH_Pin 34
 pHSensor pH_S(pH_Pin);
 float pH_Value = 0.0;
 

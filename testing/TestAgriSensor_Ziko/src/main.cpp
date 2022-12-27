@@ -1,24 +1,22 @@
 #include "Arduino.h"
-#include <Temp_Sensor.h>
+#include "pH_Sensor.h"
+#define SensorPin 34 //pH meter Analog output to Arduino Analog Input 0
 
-// Temperature Variables
-#define Temp_Pin 17
-TempSensor Temp_S(Temp_Pin);
-float Temperature_Value = 0.0;
+pHSensor pH_S(SensorPin);
 
-
-void setup(void)
+void setup()
 {
-  // sensors1.begin();	// Start up the library
-  Temp_S.setup();
+  pH_S.setup();
   Serial.begin(115200);
+  Serial.println("Ready"); //Test the serial monitor
 }
 
-void loop(void)
-{ 
-  Serial.println("------------------------");
-  Temperature_Value = Temp_S.read();
-  Serial.print("Temperature from Library :");Serial.println(Temperature_Value);
-  delay(3000);
+void loop()
+{
+  float pH = pH_S.read();
+  Serial.print(" pH:");
+  Serial.print(pH,2); 
+  Serial.println("");
+  delay(1000);
 }
 
