@@ -47,8 +47,6 @@ int MoistureSensor::read()
   for(int i=2;i<8;i++) //take the average value of 6 center sample
   {
     total+=buf[i];
-    Serial.println("The total is");
-    Serial.println(total);
   }
   avg_moist = total/6;
   MappedValue = map(avg_moist, dryValue, wetValue, DryValue_Mapped, WetValue_Mapped);
