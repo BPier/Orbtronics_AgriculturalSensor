@@ -1,6 +1,6 @@
 #include "Arduino.h"
 #include "Data_Storage.h"
-#include <Time_lib.h>
+#include "Time_lib.h"
 
 
 
@@ -24,8 +24,25 @@ void DataStorage::read()
 
 void DataStorage::writedata(float pH, float Moisture, float Temp)
 {
+  
   static char time[30];
+  Timelib Time_l;
+  char* Formated_time = "";
+  static char Formated_text[255];
+  unsigned long TimeMillis = 0;
+  TimeMillis = Time_l.GetTime();
+  Formated_time = Time_l.FormatTime(TimeMillis);
 
-  Serial.println("[INFO] : The following data is stored ");
-  Serial.println();
+  snprintf(Formated_text,
+    255,
+    PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}"),
+    Formated_time,
+    pH,
+    Moisture,
+    Temp
+  );
+
+  Serial.print("[INFO] : The following data is stored: ");
+  Serial.println(Formated_text);
+
 }

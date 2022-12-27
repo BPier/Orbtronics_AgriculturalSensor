@@ -15,9 +15,9 @@ void Timelib::setup()
 unsigned long Timelib::GetTime()
 {
   unsigned long Timems = millis();
-  Serial.print("[INFO] - Time is ");
-  Serial.print(Timems);
-  Serial.println("ms");
+  // Serial.print("[INFO] - Time is ");
+  // Serial.print(Timems);
+  // Serial.println("ms");
 
   return millis();
 
@@ -39,7 +39,7 @@ char* Timelib::FormatTime(unsigned long timemillis)
 
     snprintf(FormatedT,
       30,
-      PSTR("%02d:%02d:%02d\n"),
+      PSTR("%02d:%02d:%02d"),
       hrs,
       min,
       sec
