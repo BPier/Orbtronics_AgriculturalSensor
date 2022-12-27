@@ -7,10 +7,9 @@ class MoistureSensor
 {
   public:
 
-    
     MoistureSensor(int pin);
     void setup();
-    float read();
+    int read();
     void calibrate();
   private:
     int _pin;
