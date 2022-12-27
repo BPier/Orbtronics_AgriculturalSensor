@@ -9,6 +9,7 @@ int DryValue_Mapped = 0;
 int WetValue_Mapped = 100;
 int MappedValue=0;
 int moistReadings[10];
+int buf[10];
 int avg_moist = 0;
 int total = 0;
 
@@ -27,18 +28,36 @@ void MoistureSensor::setup()
 
 int MoistureSensor::read()
 {
-    for (int i = 0; i < 10; i++) {
-        int rawValue = analogRead(Moist_Pin);
-        moistReadings[i] = rawValue;
-        delay(10);
-        }
-    avg_moist = (moistReadings[0]+moistReadings[1]+moistReadings[2]+moistReadings[3]+moistReadings[4]+moistReadings[5]+moistReadings[6]+moistReadings[7]+moistReadings[8]+moistReadings[9])/10;
+  for(int i=0;i<10;i++) //Get 10 sample value from the sensor for smooth the value
+  {
+    buf[i]=analogRead(Moist_Pin); delay(10);
+  }
+  for(int i=0;i<9;i++) //sort the analog from small to large
+  {
+    for(int j=i+1;j<10;j++)
+    {
+      if(buf[i]>buf[j])
+      {
+        int temp=buf[i];
+        buf[i]=buf[j];
+        buf[j]=temp;
+      }
+    }
+  }
+  for(int i=2;i<8;i++) //take the average value of 6 center sample
+  {
+    total+=buf[i];
+    Serial.println("The total is");
+    Serial.println(total);
+  }
+  avg_moist = total/6;
   MappedValue = map(avg_moist, dryValue, wetValue, DryValue_Mapped, WetValue_Mapped);
+  total = 0;
   return MappedValue;
 }
 
 void MoistureSensor::calibrate()
 {
-    
+
 }
 
