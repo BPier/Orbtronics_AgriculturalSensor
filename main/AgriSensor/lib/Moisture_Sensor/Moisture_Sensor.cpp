@@ -2,6 +2,7 @@
 #include "Moisture_Sensor.h"
 
 
+
 int Moist_Pin = 0;
 int dryValue = 3500;
 int wetValue = 1500;
@@ -13,6 +14,7 @@ int buf[10];
 int avg_moist = 0;
 int total = 0;
 
+
 MoistureSensor::MoistureSensor(int pin)
 {
   pinMode(pin, INPUT);
@@ -21,13 +23,16 @@ MoistureSensor::MoistureSensor(int pin)
 
 void MoistureSensor::setup()
 {
+
     Serial.begin(115200);
     (dryValue,wetValue,DryValue_Mapped,WetValue_Mapped) = (3500,1500, 0, 100);
     Serial.println("[INFO] : The Moisture sensor is set up ");
+
 }
 
 int MoistureSensor::read()
 {
+
   for(int i=0;i<10;i++) //Get 10 sample value from the sensor for smooth the value
   {
     buf[i]=analogRead(Moist_Pin); delay(10);
@@ -54,6 +59,7 @@ int MoistureSensor::read()
   MappedValue = map(avg_moist, dryValue, wetValue, DryValue_Mapped, WetValue_Mapped);
   total = 0;
   return MappedValue;
+
 }
 
 void MoistureSensor::calibrate()
