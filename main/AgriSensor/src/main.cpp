@@ -26,8 +26,8 @@ DataStorage Data_S;
 
 // Time Management Variable
 Timelib Time_l;
-char* Formated_time = "EMPTY";
-unsigned long TimeMillis = 0;
+// char* Formated_time;
+// unsigned long TimeMillis = 0;
 
 // ================= SETUP ====================
 void setup() {
@@ -50,29 +50,24 @@ void loop() {
 
   // Read and display the pH Value
   pH_Value = pH_S.read();
-  Serial.print("[DATA] - Soil pH is ");
-  Serial.println(pH_Value,1);
+  
 
   // Read and Display the Volumetric Water Content
   Moisture_Value = Moist_S.read();
-  Serial.print("[DATA] - Soil VWC (Volumetric Water Content) is ");
-  Serial.print(Moisture_Value,0);
-  Serial.println("%");
+ 
 
   // Read and Diplay the soil Temperature
   Temperature_Value = Temp_S.read();
-  Serial.print("[DATA] - Soil Temperature is ");
-  Serial.print(Temperature_Value,1);
-  Serial.println("°C");
+  
 
-  // Get Time
-  TimeMillis = Time_l.GetTime();
-  Formated_time = Time_l.FormatTime(TimeMillis);
-  Serial.print("[INFO] - Time is ");
-  Serial.println(Formated_time);
+  // Get Time - Time is being imported in the dataStorage Library
+  // TimeMillis = Time_l.GetTime();
+  // Formated_time = Time_l.FormatTime(TimeMillis);
+  // Serial.print("[INFO] - Time is ");
+  // Serial.println(Formated_time);
 
   // Store the data
-  // Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+  Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
 
 
   delay(5000);
