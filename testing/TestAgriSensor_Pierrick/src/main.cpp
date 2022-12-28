@@ -38,7 +38,7 @@ void setup(){
 
 void loop(){
     Data_S.writedata(7.45,34,27.76);
-    Data_S.readFile(SPIFFS, "/data.json");
+    Data_S.readFile(SPIFFS, "/2022-12_data.csv");
     delay(6000);
 
 }

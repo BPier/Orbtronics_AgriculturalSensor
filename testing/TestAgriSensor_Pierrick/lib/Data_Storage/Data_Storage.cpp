@@ -37,15 +37,24 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
     TimeMillis = Time_l.GetTime();
     Formated_time = Time_l.FormatTime(TimeMillis);
 
+    char FileName[20] = "/2022-12_data.csv";
+    // snprintf(Formated_text,
+    //     255,
+    //     PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}\r\n"),
+    //     Formated_time,
+    //     pH,
+    //     Moisture,
+    //     Temp
+    // );
     snprintf(Formated_text,
         255,
-        PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}\r\n"),
+        PSTR("%s,%.2f,%.1f,%.2f\r\n"),
         Formated_time,
         pH,
         Moisture,
         Temp
     );
-    appendFile(SPIFFS, "/data.json", Formated_text);
+    appendFile(SPIFFS, FileName, Formated_text);
     Serial.print("[INFO] : The following data is stored: ");
     Serial.println(Formated_text);
 
