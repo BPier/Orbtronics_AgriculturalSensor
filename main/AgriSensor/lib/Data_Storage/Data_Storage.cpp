@@ -37,11 +37,13 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
   
     static char time[30];
     Timelib Time_l;
-    char* Formated_time = "";
+    String Formated_time;
+    static char Formated_TimeChar[50];
     static char Formated_text[255];
-    unsigned long TimeMillis = 0;
-    TimeMillis = Time_l.GetTime();
-    Formated_time = Time_l.FormatTime(TimeMillis);
+    // unsigned long TimeMillis = 0;
+    // TimeMillis = Time_l.GetTime();
+    Formated_time = Time_l.FormatTime();
+   Formated_time.toCharArray(Formated_TimeChar,50);
 
     char FileName[20] = "/2022-12_data.csv";
     // snprintf(Formated_text,
@@ -55,7 +57,7 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
     snprintf(Formated_text,
         255,
         PSTR("%s,%.2f,%.1f,%.2f\r\n"),
-        Formated_time,
+        Formated_TimeChar,
         pH,
         Moisture,
         Temp

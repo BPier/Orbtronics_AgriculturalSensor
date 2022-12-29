@@ -1,5 +1,9 @@
-#include "Arduino.h"
-#include "Time_lib.h"
+#include <Arduino.h>
+#include <Time_lib.h>
+#include <SPI.h>
+#include <RTClib.h>
+
+RTC_DS1307 rtc;
 
 Timelib::Timelib()
 {
@@ -8,45 +12,48 @@ Timelib::Timelib()
 
 void Timelib::setup()
 {
-  Serial.print("[INFO] : The Time is Set up ");
+  // Serial.begin(115200);
+
+#ifndef ESP8266
+  while (!Serial); // wait for serial port to connect. Needed for native USB
+#endif
+
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    while (1) delay(10);
+  }
+
+  if (! rtc.isrunning()) {
+    Serial.println("RTC is NOT running, let's set the time!");
+    // When time needs to be set on a new device, or after a power loss, the
+    // following line sets the RTC to the date & time this sketch was compiled
+
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+    // This line sets the RTC with an explicit date & time, for example to set
+    // January 21, 2014 at 3am you would call:
+    // rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
+
+  }
+
+  // When time needs to be re-set on a previously configured device, the
+  // following line sets the RTC to the date & time this sketch was compiled
+  // rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  // This line sets the RTC with an explicit date & time, for example to set
+  // January 21, 2014 at 3am you would call:
+  // rtc.adjust(DateTime(2022, 12, 29, 8, 54, 0));
 }
 
 
-unsigned long Timelib::GetTime()
+String Timelib::FormatTime()
 {
-  unsigned long Timems = millis();
-  // Serial.print("[INFO] - Time is ");
-  // Serial.print(Timems);
-  // Serial.println("ms");
+ DateTime time = rtc.now();
+ String str_time = time.timestamp(DateTime::TIMESTAMP_FULL);
 
-  return millis();
+ //Full Timestamp
 
-}
+ return str_time;
 
-char* Timelib::FormatTime(unsigned long timemillis)
-{
-    unsigned long seconds, sec, min, hrs;
-    static char FormatedT[30];
-    // Convert milliseconds to seconds
-    seconds = timemillis / 1000;
-
-    // Get Hours, min, seconds from the milliseconds
-    sec = seconds % 60;
-    seconds /= 60;
-    min = seconds % 60;    
-    seconds /= 60;
-    hrs = seconds % 24;
-
-    snprintf(FormatedT,
-      30,
-      PSTR("%02d:%02d:%02d"),
-      hrs,
-      min,
-      sec
-    );
-    // Serial.printf("%02d:%02d:%02d\n", hrs, min, sec);
-    // Serial.print("[DEBUG] - FormatedT in Timelib::FormatTime is equal to ");Serial.println(FormatedT);
-    return FormatedT;
 }
 
 

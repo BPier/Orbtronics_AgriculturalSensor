@@ -9,9 +9,7 @@ class Timelib
     Timelib();
     void setup();
     unsigned long GetTime();
-    char* FormatTime(unsigned long timemillis);
-  private:
-    int _pin;
+    String FormatTime();
 };
 
 #endif
