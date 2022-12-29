@@ -1,0 +1,19 @@
+#include <Time_lib.h>
+
+Timelib Time_l;
+
+void setup() {
+  Serial.begin(115200);
+  Time_l.setup();
+}
+
+void loop(){
+  String time =  Time_l.FormatTime();
+  Serial.println(String("DateTime::TIMESTAMP_FULL:\t")+ (" ") + time);
+  delay(5000);
+}
+
+
+
+
+

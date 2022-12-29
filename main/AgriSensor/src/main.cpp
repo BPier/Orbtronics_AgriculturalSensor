@@ -17,7 +17,7 @@ MoistureSensor Moist_S(Moist_Pin);
 int Moisture_Value = 0;
 
 // Temperature Variables
-#define Temp_Pin 25
+#define Temp_Pin 17
 TempSensor Temp_S(Temp_Pin);
 float Temperature_Value = 0.0;
 
@@ -38,6 +38,10 @@ void setup() {
   Moist_S.setup();
   Temp_S.setup();
   Data_S.setup();
+  Time_l.setup();
+
+  // [DEBUG] Delete File
+  Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
 
   Serial.println("=====================");
 }
@@ -61,13 +65,12 @@ void loop() {
   
 
   // Get Time - Time is being imported in the dataStorage Library
-  // TimeMillis = Time_l.GetTime();
-  // Formated_time = Time_l.FormatTime(TimeMillis);
-  // Serial.print("[INFO] - Time is ");
-  // Serial.println(Formated_time);
+  String time =  Time_l.FormatTime();
+  Serial.println(String("DateTime::\t")+ (" ") + time);
 
   // Store the data
   Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+  Data_S.readFile(SPIFFS, "/2022-12_data.csv");
 
 
   delay(5000);
