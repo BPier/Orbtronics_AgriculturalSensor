@@ -4,6 +4,8 @@
 #include "FS.h"
 #include "SPIFFS.h"
 
+#define FORMAT_SPIFFS_IF_FAILED true
+
 /* You only need to format SPIFFS the first time you run a
    test or else use the SPIFFS plugin to create a partition
    https://github.com/me-no-dev/arduino-esp32fs-plugin */
@@ -17,6 +19,10 @@ DataStorage::DataStorage()
 
 void DataStorage::setup()
 {
+    if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
+        Serial.println("SPIFFS Mount Failed");
+        return;
+    }
     Serial.println("[INFO] : The data module is ready to be used ");
 }
 
@@ -55,7 +61,9 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
         Temp
     );
     appendFile(SPIFFS, FileName, Formated_text);
-    Serial.print("[INFO] : The following data is stored: ");
+    Serial.print("[INFO] : The following data is stored in the file ");
+    Serial.print(FileName);
+    Serial.print(" : ");
     Serial.println(Formated_text);
 
 }

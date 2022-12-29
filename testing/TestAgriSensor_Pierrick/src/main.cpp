@@ -1,18 +1,15 @@
 #include "Arduino.h"
 #include "Data_Storage.h"
+#include <RTCLIB.h>
+#include <SPI.h>
 
-#define FORMAT_SPIFFS_IF_FAILED true
 
 DataStorage Data_S;
 
 void setup(){
     Serial.begin(115200);
-    if(!SPIFFS.begin(FORMAT_SPIFFS_IF_FAILED)){
-        Serial.println("SPIFFS Mount Failed");
-        return;
-    }
-    Data_S.deleteFile(SPIFFS, "/data.json");
-
+    Data_S.setup();
+    Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
     // Data_S.listDir(SPIFFS, "/", 0);
     // Data_S.writeFile(SPIFFS, "/hello.txt", "Hello ");
     // Data_S.appendFile(SPIFFS, "/text.txt", "And Happy Holidays !\r\n");
