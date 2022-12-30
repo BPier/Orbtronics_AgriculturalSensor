@@ -33,16 +33,17 @@ Timelib Time_l;
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
 
-// Parameters for Time loop
-long currentMillis = 0;
-long previousMillis = 0;
+
 
 
 // ============== Data Reading ================
 void DataReading(void *pvParameters){
+  // Parameters for Time loop
+  long currentMillisDataReading = 0;
+  long previousMillisDataReading = 0;
   while (1) {
-    currentMillis = millis();
-    if (currentMillis - previousMillis > 5000){
+    currentMillisDataReading = millis();
+    if (currentMillisDataReading - previousMillisDataReading > 5000){
       Serial.println("---------------------");
 
       // Read and display the pH Value
@@ -64,7 +65,7 @@ void DataReading(void *pvParameters){
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
       // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
-      previousMillis = millis();
+      previousMillisDataReading = millis();
 
     }
 
