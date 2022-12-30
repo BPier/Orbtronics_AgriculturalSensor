@@ -43,7 +43,7 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
     // unsigned long TimeMillis = 0;
     // TimeMillis = Time_l.GetTime();
     Formated_time = Time_l.FormatTime();
-   Formated_time.toCharArray(Formated_TimeChar,50);
+    Formated_time.toCharArray(Formated_TimeChar,50);
 
     char FileName[20] = "/2022-12_data.csv";
     // snprintf(Formated_text,
@@ -56,14 +56,14 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
     // );
     snprintf(Formated_text,
         255,
-        PSTR("%s,%.2f,%.1f,%.2f\r\n"),
+        PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}\r\n"),
         Formated_TimeChar,
         pH,
         Moisture,
         Temp
     );
     appendFile(SPIFFS, FileName, Formated_text);
-    Serial.print("[INFO] : The following data is stored in the file ");
+    Serial.print("[DATA] : The following data is stored in the file ");
     Serial.print(FileName);
     Serial.print(" : ");
     Serial.println(Formated_text);
@@ -71,7 +71,7 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
 }
 
 void DataStorage::listDir(fs::FS &fs, const char * dirname, uint8_t levels){
-    Serial.printf("Listing directory: %s\r\n", dirname);
+    Serial.printf("[INFO] Listing directory: %s\r\n", dirname);
 
     File root = fs.open(dirname);
     if(!root){
@@ -102,7 +102,7 @@ void DataStorage::listDir(fs::FS &fs, const char * dirname, uint8_t levels){
 }
 
 void DataStorage::readFile(fs::FS &fs, const char * path){
-    Serial.printf("Reading file: %s\r\n", path);
+    Serial.printf("[INFO] Reading file: %s\r\n", path);
 
     File file = fs.open(path);
     if(!file || file.isDirectory()){
@@ -110,7 +110,7 @@ void DataStorage::readFile(fs::FS &fs, const char * path){
         return;
     }
 
-    Serial.println("- read from file:");
+    // Serial.println("- read from file:");
     while(file.available()){
         Serial.write(file.read());
     }
@@ -134,17 +134,17 @@ void DataStorage::writeFile(fs::FS &fs, const char * path, const char * message)
 }
 
 void DataStorage::appendFile(fs::FS &fs, const char * path, const char * message){
-    Serial.printf("Appending to file: %s\r\n", path);
+    Serial.printf("[INFO] Appending to file: %s\r\n", path);
 
     File file = fs.open(path, FILE_APPEND);
     if(!file){
-        Serial.println("- failed to open file for appending");
+        Serial.println("   - failed to open file for appending");
         return;
     }
     if(file.print(message)){
-        Serial.println("- message appended");
+        // Serial.println("- message appended");
     } else {
-        Serial.println("- append failed");
+        Serial.println("   - append failed");
     }
     file.close();
 }
@@ -152,18 +152,18 @@ void DataStorage::appendFile(fs::FS &fs, const char * path, const char * message
 void DataStorage::renameFile(fs::FS &fs, const char * path1, const char * path2){
     Serial.printf("Renaming file %s to %s\r\n", path1, path2);
     if (fs.rename(path1, path2)) {
-        Serial.println("- file renamed");
+        Serial.println("   - file renamed");
     } else {
-        Serial.println("- rename failed");
+        Serial.println("   - rename failed");
     }
 }
 
 void DataStorage::deleteFile(fs::FS &fs, const char * path){
-    Serial.printf("Deleting file: %s\r\n", path);
+    Serial.printf("[INFO] Deleting file: %s\r\n", path);
     if(fs.remove(path)){
-        Serial.println("- file deleted");
+        Serial.println("   - file deleted");
     } else {
-        Serial.println("- delete failed");
+        Serial.println("   - delete failed");
     }
 }
 

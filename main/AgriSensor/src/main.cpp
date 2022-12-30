@@ -66,7 +66,7 @@ void loop() {
 
   // Get Time - Time is being imported in the dataStorage Library
   String time =  Time_l.FormatTime();
-  Serial.println(String("DateTime::\t")+ (" ") + time);
+  // Serial.println(String("DateTime::\t")+ (" ") + time);
 
   // Store the data
   Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);

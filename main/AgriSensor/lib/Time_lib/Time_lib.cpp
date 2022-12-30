@@ -4,6 +4,7 @@
 #include <RTClib.h>
 
 RTC_DS1307 rtc;
+bool RTC_Connected = false;
 
 Timelib::Timelib()
 {
@@ -19,10 +20,11 @@ void Timelib::setup()
 #endif
 
   if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
+    Serial.println("[ERROR] Couldn't find RTC");
     Serial.flush();
-    while (1) delay(10);
-  }
+    // while (1) delay(10);
+    RTC_Connected = false;
+  } else {}
 
   if (! rtc.isrunning()) {
     Serial.println("RTC is NOT running, let's set the time!");
@@ -47,12 +49,17 @@ void Timelib::setup()
 
 String Timelib::FormatTime()
 {
- DateTime time = rtc.now();
- String str_time = time.timestamp(DateTime::TIMESTAMP_FULL);
+  String str_time;
+  if (RTC_Connected) {
+    DateTime time = rtc.now();
+    str_time = time.timestamp(DateTime::TIMESTAMP_FULL);
+  } else {
+    str_time = "1970-01-01T00:00:00";
+  }
+  
+  //Full Timestamp
 
- //Full Timestamp
-
- return str_time;
+  return str_time;
 
 }
 
