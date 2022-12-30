@@ -44,10 +44,10 @@ float pHSensor::read()
   for(int i=2;i<8;i++) //take the average value of 6 center sample
     avgValue+=buf[i];
     avgValue = avgValue/6; // takes average
-    //Serial.println(avgValue);
+    Serial.println(avgValue);
     float phValue=(float)avgValue*3.23/4095; //convert the analog into voltage
-    //Serial.println(phValue);
-    phValue=-25*phValue+57.5; //convert the voltage into pH value 
+    Serial.println(phValue);
+    phValue=-25*phValue+56.5; //convert the voltage into pH value 
   return phValue;
 }
 
