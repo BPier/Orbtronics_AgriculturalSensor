@@ -4,6 +4,7 @@
 #include <Temp_Sensor.h>
 #include <Data_Storage.h>
 #include <Time_lib.h>
+#include <BluetoothConnectivity.h>
 
 // pH Variables
 #define pH_Pin 34
@@ -29,6 +30,9 @@ Timelib Time_l;
 // char* Formated_time;
 // unsigned long TimeMillis = 0;
 
+// Bluetooth Connectivity Variable
+BluetoothConnectivity BLC;
+
 // ================= SETUP ====================
 void setup() {
   Serial.begin(115200);
@@ -39,6 +43,7 @@ void setup() {
   Temp_S.setup();
   Data_S.setup();
   Time_l.setup();
+  BLC.setup();
 
   // [DEBUG] Delete File
   Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
@@ -71,6 +76,9 @@ void loop() {
   // Store the data
   Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
   Data_S.readFile(SPIFFS, "/2022-12_data.csv");
+
+  // Bluetooth Connectivity
+  BLC.BT_Write();
 
 
   delay(5000);
