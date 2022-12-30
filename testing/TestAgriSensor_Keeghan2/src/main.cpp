@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <BluetoothConnectivity.h>
 
-BluetoothConnectivity BLC();
+BluetoothConnectivity BLC;
 
 void setup()
 {
