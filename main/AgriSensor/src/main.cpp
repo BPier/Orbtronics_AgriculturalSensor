@@ -70,7 +70,7 @@ void loop() {
 
   // Store the data
   Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
-  Data_S.readFile(SPIFFS, "/2022-12_data.csv");
+  //Data_S.readFile(SPIFFS, "/2022-12_data.csv");
 
 
   delay(5000);
