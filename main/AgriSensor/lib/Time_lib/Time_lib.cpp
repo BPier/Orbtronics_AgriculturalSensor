@@ -24,7 +24,9 @@ void Timelib::setup()
     Serial.flush();
     // while (1) delay(10);
     RTC_Connected = false;
-  } else {}
+  } else {
+    RTC_Connected = true;
+  }
 
   if (! rtc.isrunning()) {
     Serial.println("RTC is NOT running, let's set the time!");
