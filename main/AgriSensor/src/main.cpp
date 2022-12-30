@@ -33,6 +33,53 @@ Timelib Time_l;
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
 
+// Parameters for Time loop
+long currentMillis = 0;
+long previousMillis = 0;
+
+
+// ============== Data Reading ================
+void DataReading(void *pvParameters){
+  while (1) {
+    currentMillis = millis();
+    if (currentMillis - previousMillis > 5000){
+      Serial.println("---------------------");
+
+      // Read and display the pH Value
+      pH_Value = pH_S.read();
+
+
+      // Read and Display the Volumetric Water Content
+      Moisture_Value = Moist_S.read();
+
+
+      // Read and Diplay the soil Temperature
+      Temperature_Value = Temp_S.read();
+
+
+      // Get Time - Time is being imported in the dataStorage Library
+      String time =  Time_l.FormatTime();
+      // Serial.println(String("DateTime::\t")+ (" ") + time);
+
+      // Store the data
+      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+      // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
+      previousMillis = millis();
+
+    }
+
+    delay(1);
+
+  }
+}
+
+void BTConnect(void *pvParameters)
+{
+  while (1) {
+    delay(1);
+  }
+
+}
 // ================= SETUP ====================
 void setup() {
   Serial.begin(115200);
@@ -46,41 +93,20 @@ void setup() {
   BLC.setup();
 
   // [DEBUG] Delete File
-  Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
+  //Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
 
   Serial.println("=====================");
+
+  xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
 }
 
 
 
 // ================= LOOP ======================
 void loop() {
-  Serial.println("---------------------");
-
-  // Read and display the pH Value
-  pH_Value = pH_S.read();
   
-
-  // Read and Display the Volumetric Water Content
-  Moisture_Value = Moist_S.read();
- 
-
-  // Read and Diplay the soil Temperature
-  Temperature_Value = Temp_S.read();
-  
-
-  // Get Time - Time is being imported in the dataStorage Library
-  String time =  Time_l.FormatTime();
-  // Serial.println(String("DateTime::\t")+ (" ") + time);
-
-  // Store the data
-  Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
-  Data_S.readFile(SPIFFS, "/2022-12_data.csv");
-
   // Bluetooth Connectivity
-  BLC.BT_Write();
-
-
-  delay(5000);
+  // BLC.BT_Write();
 
 }
