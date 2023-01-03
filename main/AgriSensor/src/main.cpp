@@ -41,6 +41,8 @@ Timelib Time_l;
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
+const char* Bluetooth_status;
+
 DataStorage DS;
 
 // OLED Screen Variable
@@ -94,7 +96,7 @@ void BTConnect(void *pvParameters)
 {
  
   while (1) {
-    OLED.WriteLine("Bluetooth pairing",5);
+    Bluetooth_status="Bluetooth Pairing ...";
     delay(1);
     BLC.BT_Write();
   }
@@ -105,17 +107,20 @@ void OLEDScreenDisplay(void *pvParameters)
   long currentMillisOLED= 0;
   long previousMillisOLED= 0;
   OLED.Clear();
-  OLED.WriteLine("Initializing ...",1);
+  OLED.WriteLine("Initializing Sensor..",1);
+  OLED.WriteLine("Starting Bluetooth...",6);
   OLED.Display();
+  delay(1000);
   while (1)
   {
     currentMillisOLED = millis();
-    if (currentMillisOLED - previousMillisOLED > 100 && currentMillisOLED > 5500){
-      String Formated_time = Time_l.FormatTime();
-      char timeChar[50];
-      Formated_time.toCharArray(timeChar,50);
-      OLED.CurrentValues(timeChar,pH_Value,Moisture_Value,Temperature_Value);
+    if (currentMillisOLED - previousMillisOLED > 500 && currentMillisOLED > 5500){
+      OLED.Clear();
+      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+
+      OLED.WriteLine(Bluetooth_status,6);
       previousMillisOLED = millis();
+      OLED.Display();
     }
     delay(1);
   }

@@ -4,10 +4,13 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include "Time_lib.h"
+
+Timelib Time_OLED;
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-bool Oled_Connected=false;
+bool OLED_Connected=false;
 // Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
@@ -24,41 +27,53 @@ void OLEDDisplay::setup()
     Serial.println(F("SSD1306 allocation failed"));
     // for(;;);
   } else {
-    Oled_Connected=true;
+    OLED_Connected=true;
   }
+  display.setTextSize(1);
+  display.setTextColor(WHITE,BLACK);
+
   return;
 }
 
 void OLEDDisplay::WriteLine(const char* Text, int line){
-  int cursorX=0;
-  int cursorY=line*8;
-  display.setTextSize(1);
-  display.setTextColor(WHITE,BLACK);
-  display.setCursor(cursorX, cursorY);
-  display.println(Text);
-  Display();
+  if(OLED_Connected){
+    int cursorX=0;
+    int cursorY=line*8;
+    display.setCursor(cursorX, cursorY);
+    display.println(Text);
+  }
+
 
 }
 
 void OLEDDisplay::Clear(){
-  display.clearDisplay();
+  if(OLED_Connected){
+    display.clearDisplay();
+  }
 }
 
 void OLEDDisplay::Display(){
-  display.display();
+  if(OLED_Connected){
+    display.display();
+  }
 }
 
-void OLEDDisplay::CurrentValues(const char* time, const float pH, const int Moisture, const float Temp){
+void OLEDDisplay::CurrentValues(const float pH, const int Moisture, const float Temp){
   char CharText[50];
-  Clear();
-  WriteLine(time,1);
-  sprintf(CharText,"Temperature: %.1fC",Temp);
-  WriteLine(CharText,2);
-  sprintf(CharText,"pH: %.1f",pH);
-  WriteLine(CharText,3);
-  sprintf(CharText,"Moisture: %d%%%",Moisture);
-  WriteLine(CharText,4);
-  Display();
+  if(OLED_Connected){
+    // Clear();
+    String Formated_time = Time_OLED.FormatTime();
+    char time[50];
+    Formated_time.toCharArray(time,50);
+    WriteLine(time,1);
+    sprintf(CharText,"Temperature: %.1fC",Temp);
+    WriteLine(CharText,2);
+    sprintf(CharText,"pH: %.1f",pH);
+    WriteLine(CharText,3);
+    sprintf(CharText,"Moisture: %d%%%",Moisture);
+    WriteLine(CharText,4);
+    // Display();
+  }
 }
 
 
