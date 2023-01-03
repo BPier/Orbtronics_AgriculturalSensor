@@ -83,8 +83,10 @@ void DataReading(void *pvParameters){
 
 void BTConnect(void *pvParameters)
 {
+ 
   while (1) {
-    delay(1);
+    OLED.WriteLine("Bluetooth pairing",5);
+    delay(100);
   }
 
 }
