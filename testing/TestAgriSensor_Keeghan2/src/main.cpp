@@ -1,7 +1,10 @@
 #include <Arduino.h>
 #include <BluetoothConnectivity.h>
+#include <BluetoothSerial.h>
+#include <SPI.h>
 
 BluetoothConnectivity BLC;
+BluetoothSerial serialBT;
 
 void setup()
 {
@@ -12,5 +15,7 @@ void setup()
 void loop()
 {
   BLC.BT_Write();
+  serialBT.println("hello");
+  delay(1000);
 }
 
