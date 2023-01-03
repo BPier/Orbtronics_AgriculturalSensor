@@ -33,10 +33,10 @@ void OLEDDisplay::WriteLine(const char* Text, int line){
   int cursorX=0;
   int cursorY=line*8;
   display.setTextSize(1);
-  display.setTextColor(WHITE);
+  display.setTextColor(WHITE,BLACK);
   display.setCursor(cursorX, cursorY);
   display.println(Text);
- 
+  Display();
 
 }
 
