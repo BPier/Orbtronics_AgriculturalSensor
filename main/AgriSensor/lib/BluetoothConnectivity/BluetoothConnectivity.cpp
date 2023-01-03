@@ -18,12 +18,13 @@ BluetoothConnectivity::BluetoothConnectivity()
 void BluetoothConnectivity::setup()
 {
     Serial.begin(115200);
-    SerialBT.begin("CropMate002"); //Bluetooth device name
-    Serial.println("[INFO] : The device started, now you can pair it with bluetooth!");
+    SerialBT.begin("CropMate"); //Bluetooth device name
+    Serial.println("The device started, now you can pair it with bluetooth!");
 }
 
 void BluetoothConnectivity::BT_Write()
 {
+    
     if (Serial.available()) {
         SerialBT.write(Serial.read());
     }

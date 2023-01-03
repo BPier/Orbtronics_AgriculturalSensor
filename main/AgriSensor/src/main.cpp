@@ -5,7 +5,14 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+
 #include <OLED_Display.h>
+
+#include <BluetoothSerial.h>
+#include <SPI.h>
+#include <Adafruit_I2CDevice.h>
+
+BluetoothSerial serialBT;
 
 
 // pH Variables
@@ -34,6 +41,7 @@ Timelib Time_l;
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
+DataStorage DS;
 
 // OLED Screen Variable
 OLEDDisplay OLED;
@@ -80,6 +88,7 @@ void DataReading(void *pvParameters){
     delay(1);
   }
 }
+
 
 void BTConnect(void *pvParameters)
 {
@@ -135,7 +144,7 @@ void setup() {
   BLC.setup();
 
   // [DEBUG] Delete File
-  //Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
+  Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
 
   Serial.println("=====================");
 
@@ -152,8 +161,8 @@ void setup() {
 
 // ================= LOOP ======================
 void loop() {
-  
-  // Bluetooth Connectivity
-  // BLC.BT_Write();
+  BLC.BT_Write();
+  DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
+  delay(5000);
 
 }

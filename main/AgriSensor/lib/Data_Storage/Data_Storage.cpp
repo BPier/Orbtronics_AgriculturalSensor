@@ -3,6 +3,11 @@
 #include "Time_lib.h"
 #include "FS.h"
 #include "SPIFFS.h"
+#include <BluetoothSerial.h>
+#include <SPI.h>
+#include <Adafruit_I2CDevice.h>
+
+BluetoothSerial serialBTStorage;
 
 #define FORMAT_SPIFFS_IF_FAILED true
 
@@ -45,7 +50,6 @@ char* DataStorage::writedata(float pH, float Moisture, float Temp)
     Formated_time = Time_l.FormatTime();
     Formated_time.toCharArray(Formated_TimeChar,50);
 
-    char FileName[20] = "/2022-12_data.csv";
     // snprintf(Formated_text,
     //     255,
     //     PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}\r\n"),
@@ -62,7 +66,11 @@ char* DataStorage::writedata(float pH, float Moisture, float Temp)
         Moisture,
         Temp
     );
+
+    char FileName[20] = "/2022-12_data.csv";
     appendFile(SPIFFS, FileName, Formated_text);
+
+
     Serial.print("[DATA] : The following data is stored in the file ");
     Serial.print(FileName);
     Serial.print(" : ");
@@ -221,4 +229,20 @@ void DataStorage::testFileIO(fs::FS &fs, const char * path){
     } else {
         Serial.println("- failed to open file for reading");
     }
+}
+
+void DataStorage::sendFileBT(fs::FS &fs, const char * path){
+    serialBTStorage.printf("[INFO] Reading file: %s\r\n", path);
+
+    File file = fs.open(path);
+    if(!file || file.isDirectory()){
+        serialBTStorage.println("- failed to open file for reading");
+        return;
+    }
+
+    // Serial.println("- read from file:");
+    while(file.available()){
+        serialBTStorage.write(file.read());
+    }
+    file.close();
 }
