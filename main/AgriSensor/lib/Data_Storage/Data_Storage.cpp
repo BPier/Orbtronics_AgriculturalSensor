@@ -32,7 +32,7 @@ void DataStorage::read()
 
 }
 
-void DataStorage::writedata(float pH, float Moisture, float Temp)
+char* DataStorage::writedata(float pH, float Moisture, float Temp)
 {
   
     static char time[30];
@@ -67,6 +67,8 @@ void DataStorage::writedata(float pH, float Moisture, float Temp)
     Serial.print(FileName);
     Serial.print(" : ");
     Serial.println(Formated_text);
+
+    return Formated_text;
 
 }
 

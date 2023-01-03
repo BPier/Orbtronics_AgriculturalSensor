@@ -5,6 +5,8 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+#include <OLED_Display.h>
+
 
 // pH Variables
 #define pH_Pin 34
@@ -33,7 +35,8 @@ Timelib Time_l;
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
 
-
+// OLED Screen Variable
+OLEDDisplay OLED;
 
 
 // ============== Data Reading ================
@@ -43,6 +46,7 @@ void DataReading(void *pvParameters){
   long previousMillisDataReading = 0;
   while (1) {
     currentMillisDataReading = millis();
+    
     if (currentMillisDataReading - previousMillisDataReading > 5000){
       Serial.println("---------------------");
 
@@ -64,13 +68,16 @@ void DataReading(void *pvParameters){
 
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+
+   
+
+
+
       // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
       previousMillisDataReading = millis();
 
     }
-
     delay(1);
-
   }
 }
 
@@ -81,10 +88,42 @@ void BTConnect(void *pvParameters)
   }
 
 }
+void OLEDScreenDisplay(void *pvParameters)
+{
+  long currentMillisOLED= 0;
+  long previousMillisOLED= 0;
+  OLED.Clear();
+  OLED.WriteLine("Initializing ...",1);
+  OLED.Display();
+  while (1)
+  {
+    currentMillisOLED = millis();
+    if (currentMillisOLED - previousMillisOLED > 100 && currentMillisOLED > 5500){
+      String Formated_time = Time_l.FormatTime();
+      char timeChar[50];
+      Formated_time.toCharArray(timeChar,50);
+      OLED.CurrentValues(timeChar,pH_Value,Moisture_Value,Temperature_Value);
+      previousMillisOLED = millis();
+    }
+    delay(1);
+  }
+ 
+}
 // ================= SETUP ====================
 void setup() {
   Serial.begin(115200);
   Serial.println("======= SETUP =======");
+
+  // -------------- OLED --------------
+  OLED.setup();
+  // display.clearDisplay();
+  // display.setTextSize(1);
+  // display.setTextColor(WHITE);
+  // display.setCursor(0, 8);
+  // // Display static text
+  // display.println("Initializing ...");
+  // display.display(); 
+// ---------------------------------------
 
   pH_S.setup();
   Moist_S.setup();
@@ -98,8 +137,13 @@ void setup() {
 
   Serial.println("=====================");
 
+
+
+
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
+  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+
 }
 
 
