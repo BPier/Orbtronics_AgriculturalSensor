@@ -58,11 +58,14 @@ String Timelib::FormatTime()
   } else {
     str_time = "1970-01-01T00:00:00";
   }
-  
   //Full Timestamp
 
   return str_time;
 
 }
 
+DateTime Timelib::GetTime()
+{
+  return rtc.now;
+}
 
