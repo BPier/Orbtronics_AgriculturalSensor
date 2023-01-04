@@ -50,6 +50,7 @@ OLEDDisplay OLED;
 
 
 // ============== Data Reading ================
+// Read the Values from the sensors, stores is in variables and write in in file
 void DataReading(void *pvParameters){
   // Parameters for Time loop
   long currentMillisDataReading = 0;
@@ -91,7 +92,7 @@ void DataReading(void *pvParameters){
   }
 }
 
-
+// ============== Bluetooth ================
 void BTConnect(void *pvParameters)
 {
  
@@ -100,6 +101,8 @@ void BTConnect(void *pvParameters)
     delay(1);
     BLC.BT_Write();
   }
+
+// ============== OLED Screen ================
 
 }
 void OLEDScreenDisplay(void *pvParameters)
@@ -126,6 +129,8 @@ void OLEDScreenDisplay(void *pvParameters)
   }
  
 }
+
+
 // ================= SETUP ====================
 void setup() {
   Serial.begin(115200);
