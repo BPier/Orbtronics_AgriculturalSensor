@@ -31,5 +31,6 @@ void BluetoothConnectivity::BT_Write()
     if (SerialBT.available()) {
         Serial.write(SerialBT.read());
     }
+
   delay(20);
 }
