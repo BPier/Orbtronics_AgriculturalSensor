@@ -94,11 +94,30 @@ void DataReading(void *pvParameters){
 
 void BTConnect(void *pvParameters)
 {
- 
+  String cmd1;
   while (1) {
     Bluetooth_status="Bluetooth Pairing ...";
     delay(1);
-    BLC.BT_Write();
+
+    if (serialBT.available())
+    { 
+      char incomingChar = serialBT.read();
+      if (incomingChar != '\n'){
+        cmd1 += String(incomingChar);
+      }
+      else {
+        Serial.println(cmd1);
+        if(cmd1.indexOf("Send_file")== 0){
+          Serial.println(cmd1.indexOf("Send_file"));
+          BLC.BT_Write();
+          DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
+        }
+        cmd1 = "";
+      }
+
+    }
+    
+
   }
 
 }
@@ -167,8 +186,6 @@ void setup() {
 
 // ================= LOOP ======================
 void loop() {
-  BLC.BT_Write();
-  DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
-  delay(5000);
+
 
 }
