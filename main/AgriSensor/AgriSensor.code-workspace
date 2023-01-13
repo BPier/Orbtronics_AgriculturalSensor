@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "AgriSensor",
+			"path": "."
+		},
+		{
+			"name": "TestAgriSensor_Pierrick",
+			"path": "../../testing/TestAgriSensor_Pierrick"
+		}
+	],
+	"settings": {}
+}
