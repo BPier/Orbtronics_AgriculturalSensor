@@ -41,12 +41,13 @@ Timelib Time_l;
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
-const char* Bluetooth_status;
 
 DataStorage DS;
 
 // OLED Screen Variable
 OLEDDisplay OLED;
+const char* Bluetooth_status;
+static char Battery_OLED_MESSAGE[128];
 
 const char* DEBUG_OLED_MESSAGE;
 bool Init_OK = false;
@@ -137,7 +138,9 @@ void OLEDScreenDisplay(void *pvParameters)
   {
     currentMillisOLED = millis();
     if (currentMillisOLED - previousMillisOLED > 500){
-      OLED.Clear();     
+      OLED.Clear();   
+      OLED.WriteLine(Battery_OLED_MESSAGE,5);
+  
       OLED.WriteLine(Bluetooth_status,6);
       OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
       if (Init_OK){
@@ -147,6 +150,37 @@ void OLEDScreenDisplay(void *pvParameters)
       }
       previousMillisOLED = millis();
       OLED.Display();
+    }
+    delay(1);
+  }
+ 
+}
+void BatteryVoltage(void *pvParameters)
+{
+  long currentMillisBatteryVoltage= 0;
+  long previousMillisBatteryVoltage = 0;
+  float Battery_Voltage = 0.0;
+  int r1 = 33000;
+  int r2 = 21000;
+  float Calibration_Resistor = 1.14;
+  while (1)
+  {
+    currentMillisBatteryVoltage = millis();
+    if (currentMillisBatteryVoltage - previousMillisBatteryVoltage > 500){
+      // Battery_Voltage = map(analogRead(33), 0.0f, 4095.0f, 0, 3.3);
+      Battery_Voltage = analogRead(33);
+      Serial.print("Battery analog: ");
+      Serial.println(Battery_Voltage);
+      Battery_Voltage = map(Battery_Voltage, 0.0f, 4095.0f, 0, 3300);
+      Battery_Voltage = Battery_Voltage/1000;
+      Battery_Voltage = Battery_Voltage/2*(r1+r2)/r2*Calibration_Resistor;
+      snprintf(Battery_OLED_MESSAGE,
+        255,
+        PSTR("Batt: %0.2fV"),
+        Battery_Voltage
+      );
+      float batteryLevel = map(analogRead(33), 0.0f, 4095.0f, 0, 100);
+      previousMillisBatteryVoltage = millis();
     }
     delay(1);
   }
@@ -212,6 +246,7 @@ void setup() {
 
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
+  xTaskCreatePinnedToCore(BatteryVoltage, "BatteryVoltage", 5000, NULL, 10, NULL, 1);
 
 }
 
