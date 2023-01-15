@@ -48,6 +48,8 @@ DataStorage DS;
 // OLED Screen Variable
 OLEDDisplay OLED;
 
+const char* DEBUG_OLED_MESSAGE;
+bool Init_OK = false;
 
 // ============== Data Reading ================
 // Read the Values from the sensors, stores is in variables and write in in file
@@ -129,18 +131,20 @@ void OLEDScreenDisplay(void *pvParameters)
   long currentMillisOLED= 0;
   long previousMillisOLED= 0;
   OLED.Clear();
-  OLED.WriteLine("Initializing Sensor..",1);
-  OLED.WriteLine("Starting Bluetooth...",6);
   OLED.Display();
   delay(1000);
   while (1)
   {
     currentMillisOLED = millis();
-    if (currentMillisOLED - previousMillisOLED > 500 && currentMillisOLED > 5500){
-      OLED.Clear();
-      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
-
+    if (currentMillisOLED - previousMillisOLED > 500){
+      OLED.Clear();     
       OLED.WriteLine(Bluetooth_status,6);
+      OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
+      if (Init_OK){
+        OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+      } else{
+        OLED.WriteLine("Initializing Sensor..",1);
+      }
       previousMillisOLED = millis();
       OLED.Display();
     }
@@ -155,8 +159,11 @@ void setup() {
   Serial.begin(115200);
   Serial.println("======= SETUP =======");
 
+  delay(50);
   // -------------- OLED --------------
   OLED.setup();
+  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+
   // display.clearDisplay();
   // display.setTextSize(1);
   // display.setTextColor(WHITE);
@@ -165,13 +172,35 @@ void setup() {
   // display.println("Initializing ...");
   // display.display(); 
 // ---------------------------------------
-
-  pH_S.setup();
-  Moist_S.setup();
-  Temp_S.setup();
-  Data_S.setup();
-  Time_l.setup();
+  delay(3000);
+  DEBUG_OLED_MESSAGE = "Start Bluetooth";
+  delay(500);
   BLC.setup();
+  delay(1000);
+
+  DEBUG_OLED_MESSAGE = "Start pH";
+  delay(500);
+  pH_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Moisture";
+  delay(500);
+  Moist_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Temperature";
+  delay(500);
+  Temp_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Data";
+  delay(500);
+  Data_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Clock";
+  delay(500);
+  Time_l.setup();
+  delay(2000);
+
+  Init_OK = true;
+  DEBUG_OLED_MESSAGE = "All OK";
 
   // [DEBUG] Delete File
   Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
@@ -183,7 +212,6 @@ void setup() {
 
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
-  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
 
 }
 

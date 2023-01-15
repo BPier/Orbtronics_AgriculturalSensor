@@ -10,9 +10,8 @@ class Timelib
   public:
     Timelib();
     void setup();
-    unsigned long GetTime();
     String FormatTime();
-    DateTime Timelib::GetTime();
+    DateTime GetTime();
 };
 
 #endif
