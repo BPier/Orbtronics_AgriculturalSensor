@@ -5,6 +5,7 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+#include <Battery.h>
 
 #include <OLED_Display.h>
 
@@ -14,6 +15,10 @@
 
 BluetoothSerial serialBT;
 
+// Battery Variables
+#define Battery_Pin 33
+Battery Battery_S(Battery_Pin);
+float Battery_Value = 0.0;
 
 // pH Variables
 #define pH_Pin 34
@@ -160,29 +165,41 @@ void BatteryVoltage(void *pvParameters)
   long currentMillisBatteryVoltage= 0;
   long previousMillisBatteryVoltage = 0;
   float Battery_Voltage = 0.0;
-  int r1 = 33000;
-  int r2 = 21000;
-  float Calibration_Resistor = 1.14;
+  int Battery_Level = 0;
+
   while (1)
   {
     currentMillisBatteryVoltage = millis();
     if (currentMillisBatteryVoltage - previousMillisBatteryVoltage > 500){
       // Battery_Voltage = map(analogRead(33), 0.0f, 4095.0f, 0, 3.3);
-      Battery_Voltage = analogRead(33);
-      Serial.print("Battery analog: ");
-      Serial.println(Battery_Voltage);
-      Battery_Voltage = map(Battery_Voltage, 0.0f, 4095.0f, 0, 3300);
-      Battery_Voltage = Battery_Voltage/1000;
-      Battery_Voltage = Battery_Voltage/2*(r1+r2)/r2*Calibration_Resistor;
+      // Battery_Voltage = analogRead(33);
+      // Serial.print("Battery analog: ");
+      // Serial.println(Battery_Voltage);
+      // Battery_Voltage = map(Battery_Voltage, 0.0f, 4095.0f, 0, 3300);
+      // Battery_Voltage = Battery_Voltage;
+      // Battery_Voltage = Battery_Voltage/2*(r1+r2)/r2*Calibration_Resistor;
+      Battery_Voltage = Battery_S.read();
+      // Battery_Level = map(int(Battery_Voltage), 3300, 4200, 0, 100);
+      Battery_Level = 
       snprintf(Battery_OLED_MESSAGE,
         255,
-        PSTR("Batt: %0.2fV"),
-        Battery_Voltage
+        PSTR("B:%0.1fV-%d%%%"),
+        Battery_Voltage/1000,
+        Battery_Level
       );
-      float batteryLevel = map(analogRead(33), 0.0f, 4095.0f, 0, 100);
       previousMillisBatteryVoltage = millis();
+      // if(Battery_Level<80){
+      //   DEBUG_OLED_MESSAGE = "LOW BAT - Turning OFF";
+      //   delay(5000);
+      //   digitalWrite(15,LOW);
+
+      //   esp_sleep_enable_timer_wakeup(5*1000000);
+      //   esp_deep_sleep_start();
+      // }
+        
     }
     delay(1);
+
   }
  
 }
@@ -190,8 +207,13 @@ void BatteryVoltage(void *pvParameters)
 
 // ================= SETUP ====================
 void setup() {
+  pinMode(15, OUTPUT);
+
   Serial.begin(115200);
   Serial.println("======= SETUP =======");
+
+  delay(500);
+  digitalWrite(15,HIGH);
 
   delay(50);
   // -------------- OLED --------------
@@ -206,32 +228,32 @@ void setup() {
   // display.println("Initializing ...");
   // display.display(); 
 // ---------------------------------------
-  delay(3000);
+  delay(300);
   DEBUG_OLED_MESSAGE = "Start Bluetooth";
-  delay(500);
+  delay(50);
   BLC.setup();
-  delay(1000);
+  delay(100);
 
   DEBUG_OLED_MESSAGE = "Start pH";
-  delay(500);
+  delay(50);
   pH_S.setup();
-  delay(1000);
+  delay(100);
   DEBUG_OLED_MESSAGE = "Start Moisture";
-  delay(500);
+  delay(50);
   Moist_S.setup();
-  delay(1000);
+  delay(100);
   DEBUG_OLED_MESSAGE = "Start Temperature";
-  delay(500);
+  delay(50);
   Temp_S.setup();
-  delay(1000);
+  delay(100);
   DEBUG_OLED_MESSAGE = "Start Data";
-  delay(500);
+  delay(50);
   Data_S.setup();
-  delay(1000);
+  delay(100);
   DEBUG_OLED_MESSAGE = "Start Clock";
-  delay(500);
+  delay(50);
   Time_l.setup();
-  delay(2000);
+  delay(100);
 
   Init_OK = true;
   DEBUG_OLED_MESSAGE = "All OK";
