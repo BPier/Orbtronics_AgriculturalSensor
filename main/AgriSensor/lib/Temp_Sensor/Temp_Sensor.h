@@ -9,12 +9,13 @@
 class TempSensor
 {
   public:
-    TempSensor(int pin);
+    TempSensor(int pin, int powerpin);
     void setup();
     float read();
     void calibrate();
   private:
     int _pin;
+    int _powerpin;
 };
 
 #endif

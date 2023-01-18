@@ -7,14 +7,14 @@ class OLEDDisplay
 {
   public:
 
-    OLEDDisplay();
+    OLEDDisplay(int powerpin);
     void setup();
     void WriteLine(const char* Text, int line);
     void Clear();
     void Display();
     void CurrentValues(const float pH, const int Moisture, const float Temp);
   private:
-    int _pin;
+    int _powerpin;
 };
 
 #endif

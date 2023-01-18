@@ -49,12 +49,12 @@ float Battery::read()
   for(int i=2;i<8;i++) //take the average value of 6 center sample
     avgValueBattery+=buf[i];
     avgValueBattery = avgValueBattery/6; // takes average
-    Serial.println(avgValueBattery);
+    // Serial.println(avgValueBattery);
     Battery_Voltage=float(avgValueBattery)*3300/4095; //convert the analog into voltage
-    Serial.println(Battery_Voltage);
+    // Serial.println(Battery_Voltage);
 
     Battery_Voltage = Battery_Voltage/2*(r1+r2)/r2*Calibration_Resistor;
-    Serial.println(Battery_Voltage);
+    // Serial.println(Battery_Voltage);
   return Battery_Voltage;
 }
 

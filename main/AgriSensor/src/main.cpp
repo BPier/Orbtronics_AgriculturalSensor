@@ -21,36 +21,41 @@ Battery Battery_S(Battery_Pin);
 float Battery_Value = 0.0;
 
 // pH Variables
-#define pH_Pin 34
-pHSensor pH_S(pH_Pin);
+#define pH_Pin 4
+#define pH_Power_Pin 15
+pHSensor pH_S(pH_Pin,pH_Power_Pin);
 float pH_Value = 0.0;
 
 // Moisture Variable
 // Moisture is displayed has Volumetric Water Content from 0-100%
 #define Moist_Pin 32
-MoistureSensor Moist_S(Moist_Pin);
+#define Moist_Power_pin 12
+MoistureSensor Moist_S(Moist_Pin, Moist_Power_pin);
 int Moisture_Value = 0;
 
 // Temperature Variables
-#define Temp_Pin 17
-TempSensor Temp_S(Temp_Pin);
+#define Temp_Pin 16
+#define Temp_Power_pin 18
+TempSensor Temp_S(Temp_Pin,Temp_Power_pin);
 float Temperature_Value = 0.0;
 
 // Data Storage Variable
 DataStorage Data_S;
 
-// Time Management Variable
-Timelib Time_l;
-// char* Formated_time;
-// unsigned long TimeMillis = 0;
+
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
 
 DataStorage DS;
 
+// Time Management Variable
+Timelib Time_l;
+// char* Formated_time;
+// unsigned long TimeMillis = 0;
 // OLED Screen Variable
-OLEDDisplay OLED;
+#define SPI_Power_Pin 19
+OLEDDisplay OLED(19);
 const char* Bluetooth_status;
 static char Battery_OLED_MESSAGE[128];
 

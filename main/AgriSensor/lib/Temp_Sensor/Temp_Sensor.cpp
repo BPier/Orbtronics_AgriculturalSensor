@@ -10,17 +10,20 @@ OneWire oneWire(Temp_Pin);
 // Pass oneWire reference to DallasTemperature library
 DallasTemperature sensors(&oneWire);
 
-TempSensor::TempSensor(int pin)
+TempSensor::TempSensor(int pin,int powerpin)
 {
   pinMode(pin, INPUT);
+  pinMode(powerpin, OUTPUT);
+  _powerpin = powerpin;
   _pin = pin;
   Temp_Pin = pin;
+
 }
 
 void TempSensor::setup()
 {
   sensors.begin();    
-  Serial.print("[INFO] : The Temperature sensor is set up on pin ");
+  Serial.printf("[INFO] : The Temperature sensor is set up on pin %d and power by pin %d",Temp_Pin,_powerpin);
   Serial.println(Temp_Pin);
 }
 
@@ -31,8 +34,13 @@ float TempSensor::read()
   // float TempValue = random(100,350);
   // TempValue = TempValue/10;
   // Send the command to get temperatures
+  digitalWrite(_powerpin,HIGH);
+  delay(100);
   sensors.requestTemperatures(); 
-  return sensors.getTempCByIndex(0);
+  float ReturnTemp = sensors.getTempCByIndex(0);
+  digitalWrite(_powerpin,LOW);
+
+  return ReturnTemp;
   // return TempValue;
 }
 
