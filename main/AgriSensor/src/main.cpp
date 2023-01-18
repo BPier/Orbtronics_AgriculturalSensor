@@ -229,31 +229,32 @@ void setup() {
   // display.display(); 
 // ---------------------------------------
   delay(300);
-  DEBUG_OLED_MESSAGE = "Start Bluetooth";
-  delay(50);
-  BLC.setup();
+ 
   delay(100);
 
   DEBUG_OLED_MESSAGE = "Start pH";
-  delay(50);
+  delay(500);
   pH_S.setup();
-  delay(100);
+  delay(1000);
   DEBUG_OLED_MESSAGE = "Start Moisture";
-  delay(50);
+  delay(500);
   Moist_S.setup();
-  delay(100);
+  delay(1000);
   DEBUG_OLED_MESSAGE = "Start Temperature";
-  delay(50);
+  delay(500);
   Temp_S.setup();
-  delay(100);
+  delay(1000);
   DEBUG_OLED_MESSAGE = "Start Data";
-  delay(50);
+  delay(500);
   Data_S.setup();
-  delay(100);
+  delay(1000);
   DEBUG_OLED_MESSAGE = "Start Clock";
-  delay(50);
+  delay(500);
   Time_l.setup();
-  delay(100);
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Bluetooth";
+  delay(500);
+  BLC.setup();
 
   Init_OK = true;
   DEBUG_OLED_MESSAGE = "All OK";
