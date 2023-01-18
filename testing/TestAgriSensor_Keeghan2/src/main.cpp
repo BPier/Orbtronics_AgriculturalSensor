@@ -1,21 +1,17 @@
+#include <NPK_Sensor.h>
 #include <Arduino.h>
-#include <BluetoothConnectivity.h>
-#include <BluetoothSerial.h>
-#include <SPI.h>
 
-BluetoothConnectivity BLC;
-BluetoothSerial serialBT;
+NPKSensor Nitrogen;
+NPKSensor Phosphorus;
+NPKSensor Potassium;
 
-void setup()
-{
-  Serial.begin(115200);
-  BLC.setup();
+void setup(){
+  Serial.begin(9600);
 }
+void loop(){
+  int n_value = NPKSensor.Nitrogen();
+  int p_value = NPKSensor.Phospohrus();
+  int k_value = NPKSensor.Potassium();
+  
 
-void loop()
-{
-  BLC.BT_Write();
-  serialBT.println("hello");
-  delay(1000);
 }
-
