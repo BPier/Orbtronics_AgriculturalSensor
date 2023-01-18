@@ -5,6 +5,7 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+#include <Battery.h>
 
 #include <OLED_Display.h>
 
@@ -14,6 +15,10 @@
 
 BluetoothSerial serialBT;
 
+// Battery Variables
+#define Battery_Pin 33
+Battery Battery_S(Battery_Pin);
+float Battery_Value = 0.0;
 
 // pH Variables
 #define pH_Pin 34
@@ -41,13 +46,16 @@ Timelib Time_l;
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
-const char* Bluetooth_status;
 
 DataStorage DS;
 
 // OLED Screen Variable
 OLEDDisplay OLED;
+const char* Bluetooth_status;
+static char Battery_OLED_MESSAGE[128];
 
+const char* DEBUG_OLED_MESSAGE;
+bool Init_OK = false;
 
 // ============== Data Reading ================
 // Read the Values from the sensors, stores is in variables and write in in file
@@ -129,18 +137,22 @@ void OLEDScreenDisplay(void *pvParameters)
   long currentMillisOLED= 0;
   long previousMillisOLED= 0;
   OLED.Clear();
-  OLED.WriteLine("Initializing Sensor..",1);
-  OLED.WriteLine("Starting Bluetooth...",6);
   OLED.Display();
   delay(1000);
   while (1)
   {
     currentMillisOLED = millis();
-    if (currentMillisOLED - previousMillisOLED > 500 && currentMillisOLED > 5500){
-      OLED.Clear();
-      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
-
+    if (currentMillisOLED - previousMillisOLED > 500){
+      OLED.Clear();   
+      OLED.WriteLine(Battery_OLED_MESSAGE,5);
+  
       OLED.WriteLine(Bluetooth_status,6);
+      OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
+      if (Init_OK){
+        OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+      } else{
+        OLED.WriteLine("Initializing Sensor..",1);
+      }
       previousMillisOLED = millis();
       OLED.Display();
     }
@@ -148,15 +160,66 @@ void OLEDScreenDisplay(void *pvParameters)
   }
  
 }
+void BatteryVoltage(void *pvParameters)
+{
+  long currentMillisBatteryVoltage= 0;
+  long previousMillisBatteryVoltage = 0;
+  float Battery_Voltage = 0.0;
+  int Battery_Level = 0;
+
+  while (1)
+  {
+    currentMillisBatteryVoltage = millis();
+    if (currentMillisBatteryVoltage - previousMillisBatteryVoltage > 500){
+      // Battery_Voltage = map(analogRead(33), 0.0f, 4095.0f, 0, 3.3);
+      // Battery_Voltage = analogRead(33);
+      // Serial.print("Battery analog: ");
+      // Serial.println(Battery_Voltage);
+      // Battery_Voltage = map(Battery_Voltage, 0.0f, 4095.0f, 0, 3300);
+      // Battery_Voltage = Battery_Voltage;
+      // Battery_Voltage = Battery_Voltage/2*(r1+r2)/r2*Calibration_Resistor;
+      Battery_Voltage = Battery_S.read();
+      // Battery_Level = map(int(Battery_Voltage), 3300, 4200, 0, 100);
+      Battery_Level = 
+      snprintf(Battery_OLED_MESSAGE,
+        255,
+        PSTR("B:%0.1fV-%d%%%"),
+        Battery_Voltage/1000,
+        Battery_Level
+      );
+      previousMillisBatteryVoltage = millis();
+      // if(Battery_Level<80){
+      //   DEBUG_OLED_MESSAGE = "LOW BAT - Turning OFF";
+      //   delay(5000);
+      //   digitalWrite(15,LOW);
+
+      //   esp_sleep_enable_timer_wakeup(5*1000000);
+      //   esp_deep_sleep_start();
+      // }
+        
+    }
+    delay(1);
+
+  }
+ 
+}
 
 
 // ================= SETUP ====================
 void setup() {
+  pinMode(15, OUTPUT);
+
   Serial.begin(115200);
   Serial.println("======= SETUP =======");
 
+  delay(500);
+  digitalWrite(15,HIGH);
+
+  delay(50);
   // -------------- OLED --------------
   OLED.setup();
+  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+
   // display.clearDisplay();
   // display.setTextSize(1);
   // display.setTextColor(WHITE);
@@ -165,13 +228,36 @@ void setup() {
   // display.println("Initializing ...");
   // display.display(); 
 // ---------------------------------------
+  delay(300);
+ 
+  delay(100);
 
+  DEBUG_OLED_MESSAGE = "Start pH";
+  delay(500);
   pH_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Moisture";
+  delay(500);
   Moist_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Temperature";
+  delay(500);
   Temp_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Data";
+  delay(500);
   Data_S.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Clock";
+  delay(500);
   Time_l.setup();
+  delay(1000);
+  DEBUG_OLED_MESSAGE = "Start Bluetooth";
+  delay(500);
   BLC.setup();
+
+  Init_OK = true;
+  DEBUG_OLED_MESSAGE = "All OK";
 
   // [DEBUG] Delete File
   Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
@@ -183,7 +269,7 @@ void setup() {
 
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
-  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+  xTaskCreatePinnedToCore(BatteryVoltage, "BatteryVoltage", 5000, NULL, 10, NULL, 1);
 
 }
 
