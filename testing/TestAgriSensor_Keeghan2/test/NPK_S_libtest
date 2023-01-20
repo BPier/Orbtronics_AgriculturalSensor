@@ -1,0 +1,16 @@
+#include <Arduino.h>
+#include <NPK_Sensor.h>
+
+NPKSensor npk;
+
+
+void setup(){
+  Serial.begin(9600);
+  npk.setup();
+};
+
+void loop(){
+  npk.Nitrogen();
+  npk.Phosphorus();
+  npk.Potassium();
+};

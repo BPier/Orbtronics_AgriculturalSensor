@@ -66,7 +66,9 @@ String Timelib::FormatTime()
 
 DateTime Timelib::GetTime()
 {
+
   DateTime time = rtc.now();
+
   return time;
 }
 

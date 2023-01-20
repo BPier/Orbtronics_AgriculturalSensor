@@ -5,6 +5,10 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+
+#include <NPK_Sensor.h>
+#include <SoftwareSerial.h>
+
 #include <Battery.h>
 
 #include <OLED_Display.h>
@@ -43,6 +47,12 @@ float Temperature_Value = 0.0;
 DataStorage Data_S;
 
 
+
+// NPK Variables
+NPKSensor npk;
+int N = npk.Nitrogen();
+int P = npk.Phosphorus();
+int K = npk.Potassium();
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
@@ -223,6 +233,10 @@ bool SensorsStartSequence(){
   DEBUG_OLED_MESSAGE = "Start Bluetooth";
   delay(2000);
   BLC.setup();
+  
+  delay(2000);
+  npk.setup();
+
   return true;
 }
 
