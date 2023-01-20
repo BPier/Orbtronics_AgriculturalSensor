@@ -21,36 +21,41 @@ Battery Battery_S(Battery_Pin);
 float Battery_Value = 0.0;
 
 // pH Variables
-#define pH_Pin 34
-pHSensor pH_S(pH_Pin);
+#define pH_Pin 4
+#define pH_Power_Pin 15
+pHSensor pH_S(pH_Pin,pH_Power_Pin);
 float pH_Value = 0.0;
 
 // Moisture Variable
 // Moisture is displayed has Volumetric Water Content from 0-100%
 #define Moist_Pin 32
-MoistureSensor Moist_S(Moist_Pin);
+#define Moist_Power_pin 12
+MoistureSensor Moist_S(Moist_Pin, Moist_Power_pin);
 int Moisture_Value = 0;
 
 // Temperature Variables
-#define Temp_Pin 17
-TempSensor Temp_S(Temp_Pin);
+#define Temp_Pin 16
+#define Temp_Power_pin 18
+TempSensor Temp_S(Temp_Pin,Temp_Power_pin);
 float Temperature_Value = 0.0;
 
 // Data Storage Variable
 DataStorage Data_S;
 
-// Time Management Variable
-Timelib Time_l;
-// char* Formated_time;
-// unsigned long TimeMillis = 0;
+
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
 
 DataStorage DS;
 
+// Time Management Variable
+Timelib Time_l;
+// char* Formated_time;
+// unsigned long TimeMillis = 0;
 // OLED Screen Variable
-OLEDDisplay OLED;
+#define SPI_Power_Pin 19
+OLEDDisplay OLED(19);
 const char* Bluetooth_status;
 static char Battery_OLED_MESSAGE[128];
 
@@ -71,23 +76,15 @@ void DataReading(void *pvParameters){
 
       // Read and display the pH Value
       pH_Value = pH_S.read();
-
-
       // Read and Display the Volumetric Water Content
       Moisture_Value = Moist_S.read();
-
-
       // Read and Diplay the soil Temperature
       Temperature_Value = Temp_S.read();
-
-
       // Get Time - Time is being imported in the dataStorage Library
       String time =  Time_l.FormatTime();
       // Serial.println(String("DateTime::\t")+ (" ") + time);
-
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
-
    
 
 
@@ -204,36 +201,7 @@ void BatteryVoltage(void *pvParameters)
  
 }
 
-
-// ================= SETUP ====================
-void setup() {
-  pinMode(15, OUTPUT);
-
-  Serial.begin(115200);
-  Serial.println("======= SETUP =======");
-
-  delay(500);
-  digitalWrite(15,HIGH);
-
-  delay(50);
-  // -------------- OLED --------------
-  OLED.setup();
-  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
-
-  // display.clearDisplay();
-  // display.setTextSize(1);
-  // display.setTextColor(WHITE);
-  // display.setCursor(0, 8);
-  // // Display static text
-  // display.println("Initializing ...");
-  // display.display(); 
-// ---------------------------------------
-  delay(300);
- 
-  delay(100);
-
-  DEBUG_OLED_MESSAGE = "Start pH";
-  delay(500);
+bool SensorsStartSequence(){
   pH_S.setup();
   delay(1000);
   DEBUG_OLED_MESSAGE = "Start Moisture";
@@ -253,15 +221,29 @@ void setup() {
   Time_l.setup();
   delay(1000);
   DEBUG_OLED_MESSAGE = "Start Bluetooth";
-  delay(500);
+  delay(2000);
   BLC.setup();
+  return true;
+}
 
-  Init_OK = true;
+// ================= SETUP ====================
+void setup() {
+  pinMode(15, OUTPUT);
+  Serial.begin(115200);
+  Serial.println("======= SETUP =======");
+  delay(500);
+  digitalWrite(15,HIGH);
+  delay(50);
+  // -------------- OLED --------------
+  OLED.setup();
+  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+  delay(300);
+
+  Init_OK = SensorsStartSequence();
   DEBUG_OLED_MESSAGE = "All OK";
 
   // [DEBUG] Delete File
   Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
-
   Serial.println("=====================");
 
 

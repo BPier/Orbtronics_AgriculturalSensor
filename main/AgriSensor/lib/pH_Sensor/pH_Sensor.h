@@ -6,12 +6,13 @@
 class pHSensor
 {
   public:
-    pHSensor(int pin);
+    pHSensor(int pin, int powerpin);
     void setup();
     float read();
     void calibrate();
   private:
     int _pin;
+    int _powerpin;
 };
 
 #endif
