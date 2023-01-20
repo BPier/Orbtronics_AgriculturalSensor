@@ -15,10 +15,12 @@ int avg_moist = 0;
 int total = 0;
 
 
-MoistureSensor::MoistureSensor(int pin)
+MoistureSensor::MoistureSensor(int pin, int powerpin)
 {
   pinMode(pin, INPUT);
   Moist_Pin = pin;
+  pinMode(powerpin, OUTPUT);
+  _powerpin = powerpin;
 }
 
 void MoistureSensor::setup()
@@ -27,12 +29,13 @@ void MoistureSensor::setup()
     Serial.begin(115200);
     (dryValue,wetValue,DryValue_Mapped,WetValue_Mapped) = (3500,1500, 0, 100);
     Serial.println("[INFO] : The Moisture sensor is set up ");
-
+    
 }
 
 int MoistureSensor::read()
 {
-
+  digitalWrite(_powerpin,HIGH);
+  delay(100);
   for(int i=0;i<10;i++) //Get 10 sample value from the sensor for smooth the value
   {
     buf[i]=analogRead(Moist_Pin); delay(10);
@@ -56,6 +59,8 @@ int MoistureSensor::read()
   avg_moist = total/6;
   MappedValue = map(avg_moist, dryValue, wetValue, DryValue_Mapped, WetValue_Mapped);
   total = 0;
+  digitalWrite(_powerpin,LOW);
+
   return MappedValue;
 
 }

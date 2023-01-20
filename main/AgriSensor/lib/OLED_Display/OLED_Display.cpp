@@ -15,14 +15,18 @@ bool OLED_Connected=false;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 
-OLEDDisplay::OLEDDisplay()
+OLEDDisplay::OLEDDisplay(int powerpin)
 {
+  pinMode(powerpin, OUTPUT);
+  _powerpin = powerpin;
 
   return;
 }
 
 void OLEDDisplay::setup()
 {
+  digitalWrite(_powerpin,HIGH);
+  delay(500);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) { // Address 0x3D for 128x64
     Serial.println(F("SSD1306 allocation failed"));
     // for(;;);
