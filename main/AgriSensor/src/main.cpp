@@ -5,6 +5,8 @@
 #include <Data_Storage.h>
 #include <Time_lib.h>
 #include <BluetoothConnectivity.h>
+#include <NPK_Sensor.h>
+#include <SoftwareSerial.h>
 
 #include <OLED_Display.h>
 
@@ -38,6 +40,12 @@ DataStorage Data_S;
 Timelib Time_l;
 // char* Formated_time;
 // unsigned long TimeMillis = 0;
+
+// NPK Variables
+NPKSensor npk;
+int N = npk.Nitrogen();
+int P = npk.Phosphorus();
+int K = npk.Potassium();
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
@@ -172,6 +180,7 @@ void setup() {
   Data_S.setup();
   Time_l.setup();
   BLC.setup();
+  npk.setup();
 
   // [DEBUG] Delete File
   Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
