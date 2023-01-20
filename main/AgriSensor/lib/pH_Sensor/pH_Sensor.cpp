@@ -8,6 +8,7 @@ pHSensor::pHSensor(int pin, int powerpin)
   pinMode(pin, INPUT);
   _pin = pin;
   pinMode(powerpin, OUTPUT);
+
   _powerpin = powerpin;
 }
 
@@ -15,13 +16,15 @@ void pHSensor::setup()
 {
     Serial.print("[INFO] : The pH sensor is set up on pin ");
     Serial.println(_pin);
+    digitalWrite(_powerpin,LOW);
+
 }
 
 
 float pHSensor::read()
 {
   digitalWrite(_powerpin,HIGH);
-  delay(1000);
+  delay(500);
     // Generate a random Value between 5 and 7 to simulate soil pH
   int buf[10]; //buffer for read analog
   int temp_var = 0;
@@ -29,7 +32,7 @@ float pHSensor::read()
   for(int i=0;i<10;i++) //Get 10 sample value from the sensor for smooth the value
   {
     buf[i]=analogRead(_pin);
-    Serial.printf("Ph analog Reading [%d]: %d",i,buf[i]); 
+    Serial.printf("Ph analog Reading [%d]: %d\n",i,buf[i] ); 
     delay(10);
   }
   for(int i=0;i<9;i++) //sort the analog from small to large
@@ -49,14 +52,16 @@ float pHSensor::read()
   {
     //take the average value of 6 center sample
     avgValue+=buf[i];
-    avgValue = avgValue/6; // takes average
   }
+    avgValue = avgValue/6; // takes average
+
     // Serial.println(avgValue);
     phValue=(float)avgValue*3.3/4095; //convert the analog into voltage
     // Serial.println(phValue);
-    phValue=-25*phValue+56.5; //convert the voltage into pH value 
+    phValue=-8*phValue+20.3; //convert the voltage into pH value 
     // phValue = analogRead(SensorPin);
   // digitalWrite(_powerpin,LOW);
+  digitalWrite(_powerpin,LOW);
 
   return phValue;
 }

@@ -23,8 +23,10 @@ TempSensor::TempSensor(int pin,int powerpin)
 void TempSensor::setup()
 {
   sensors.begin();    
-  Serial.printf("[INFO] : The Temperature sensor is set up on pin %d and power by pin %d",Temp_Pin,_powerpin);
-  Serial.println(Temp_Pin);
+  Serial.printf("[INFO] : The Temperature sensor is set up on pin %d and power by pin %d",_pin,_powerpin);
+  Serial.println(_pin);
+  digitalWrite(_powerpin,LOW);
+
 }
 
 

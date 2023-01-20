@@ -16,6 +16,7 @@ class TempSensor
   private:
     int _pin;
     int _powerpin;
+    
 };
 
 #endif
