@@ -124,15 +124,23 @@ void BTConnect(void *pvParameters)
       delay(500);
       BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
       Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
-      // if (digitalRead(BT_Switch_Pin)== HIGH){
-      //   Bluetooth_status = "Start Bluetooth";
-      //   delay(2000);
-      //   // BLC.setup();
-      //   Bluetooth_status="Bluetooth Pairing ...";
-      //   BT_Activated = true;
+      if (BT_Switch_Pin_Status){
+        Bluetooth_status = "Start Bluetooth";
+        delay(2000);
+        BLC.setup();
+        Bluetooth_status="Bluetooth Pairing ...";
+        BT_Activated = true;
 
-      // }
+      }
+    } else if (BT_Activated == true)
+    {
+      if (!BT_Switch_Pin_Status){
+
+      }
+
     }
+    
+
 
     if (serialBT.available())
     { 
