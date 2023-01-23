@@ -80,61 +80,50 @@ bool Init_OK = false;
 // ============== Data Reading ================
 // Read the Values from the sensors, stores is in variables and write in in file
 void DataReading(void *pvParameters){
-  // Parameters for Time loop
-  long currentMillisDataReading = 0;
-  long previousMillisDataReading = 0;
+
   while (1) {
-    currentMillisDataReading = millis();
-    
-    if (currentMillisDataReading - previousMillisDataReading > 5000){
-      Serial.println("---------------------");
+ 
+    Serial.println("---------------------");
 
-      // Read and display the pH Value
-      pH_Value = pH_S.read();
-      // Read and Display the Volumetric Water Content
-      Moisture_Value = Moist_S.read();
-      // Read and Diplay the soil Temperature
-      Temperature_Value = Temp_S.read();
-      // Get Time - Time is being imported in the dataStorage Library
-      String time =  Time_l.FormatTime();
-      // Serial.println(String("DateTime::\t")+ (" ") + time);
-      // Store the data
-      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
-   
+    // Read and display the pH Value
+    pH_Value = pH_S.read();
+    // Read and Display the Volumetric Water Content
+    Moisture_Value = Moist_S.read();
+    // Read and Diplay the soil Temperature
+    Temperature_Value = Temp_S.read();
+    // Get Time - Time is being imported in the dataStorage Library
+    String time =  Time_l.FormatTime();
+    // Serial.println(String("DateTime::\t")+ (" ") + time);
+    // Store the data
+    Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
 
 
-
-      // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
-      previousMillisDataReading = millis();
-
-    }
-    delay(1);
-  }
+    vTaskDelay(500 / portTICK_PERIOD_MS);  }
 }
 
 // ============== Bluetooth ================
 void BTConnect(void *pvParameters)
 {
-  long currentMillisBT= 0;
-  long previousMillisBT= 0;
+  // long currentMillisBT= 0;
+  // long previousMillisBT= 0;
   byte BT_Switch_Pin_Status;
   String cmd1;
+  int delayBT = 2000;
   while (1) {
-    delay(1);
-    Serial.printf("[INFO] Bluetooth Status: ");Serial.println(Bluetooth_status);
-    currentMillisBT = millis();
-    if (currentMillisBT - previousMillisBT > 500){     
+    vTaskDelay(delayBT / portTICK_PERIOD_MS);
+    // Serial.printf("[INFO] Bluetooth Status: ");Serial.println(Bluetooth_status);
+    // currentMillisBT = millis();
+    // if (currentMillisBT - previousMillisBT > 1000){     
       BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
       if (BT_Activated == false){
         BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
-        Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
+        // Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
         if (BT_Switch_Pin_Status){
           Bluetooth_status = "Start Bluetooth";
-          delay(2000);
           BLC.setup();
           Bluetooth_status="Bluetooth Pairing ...";
           BT_Activated = true;
-
+          delayBT = 100;
         }
       } else if (BT_Activated == true)
       {
@@ -142,6 +131,10 @@ void BTConnect(void *pvParameters)
           Bluetooth_status = "Stop Bluetooth";
           BT_Activated = false;
           BLC.stop();
+          vTaskDelay(5000 / portTICK_PERIOD_MS);
+          Bluetooth_status = "Bluetooth OFF";
+          delayBT = 2000;
+
         }
 
       }
@@ -150,6 +143,8 @@ void BTConnect(void *pvParameters)
 
       if (serialBT.available())
       { 
+        Bluetooth_status="Bluetooth Connected";
+
         char incomingChar = serialBT.read();
         if (incomingChar != '\n'){
           cmd1 += String(incomingChar);
@@ -164,8 +159,8 @@ void BTConnect(void *pvParameters)
           cmd1 = "";
         }
       }
-    }   
-    previousMillisBT = millis();
+    // }   
+    // previousMillisBT = millis();
   }
 
 // ============== OLED Screen ================
@@ -177,8 +172,7 @@ void OLEDScreenDisplay(void *pvParameters)
   long previousMillisOLED= 0;
   OLED.Clear();
   OLED.Display();
-  delay(1000);
-  while (1)
+  vTaskDelay(1000 / portTICK_PERIOD_MS);  while (1)
   {
     currentMillisOLED = millis();
     if (currentMillisOLED - previousMillisOLED > 500){
@@ -195,8 +189,7 @@ void OLEDScreenDisplay(void *pvParameters)
       previousMillisOLED = millis();
       OLED.Display();
     }
-    delay(1);
-  }
+    vTaskDelay(500 / portTICK_PERIOD_MS);  }
  
 }
 void BatteryVoltage(void *pvParameters)
@@ -237,8 +230,7 @@ void BatteryVoltage(void *pvParameters)
       // }
         
     }
-    delay(1);
-
+    vTaskDelay(500 / portTICK_PERIOD_MS);
   }
  
 }
