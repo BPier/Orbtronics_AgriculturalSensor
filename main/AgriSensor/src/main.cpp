@@ -33,7 +33,7 @@ float pH_Value = 0.0;
 // Moisture Variable
 // Moisture is displayed has Volumetric Water Content from 0-100%
 #define Moist_Pin 32
-#define Moist_Power_pin 12
+#define Moist_Power_pin 13
 MoistureSensor Moist_S(Moist_Pin, Moist_Power_pin);
 int Moisture_Value = 0;
 
@@ -55,7 +55,9 @@ int P = npk.Phosphorus();
 int K = npk.Potassium();
 
 // Bluetooth Connectivity Variable
-BluetoothConnectivity BLC;
+#define BT_Switch_Pin 34
+#define BT_LED_Pin 26
+BluetoothConnectivity BLC(BT_Switch_Pin,BT_LED_Pin);
 
 DataStorage DS;
 
@@ -65,7 +67,7 @@ Timelib Time_l;
 // unsigned long TimeMillis = 0;
 // OLED Screen Variable
 #define SPI_Power_Pin 19
-OLEDDisplay OLED(19);
+OLEDDisplay OLED(SPI_Power_Pin);
 const char* Bluetooth_status;
 static char Battery_OLED_MESSAGE[128];
 

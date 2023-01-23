@@ -10,16 +10,21 @@
 
 BluetoothSerial SerialBT;
 
-BluetoothConnectivity::BluetoothConnectivity()
+BluetoothConnectivity::BluetoothConnectivity(int switchPin, int LEDPin)
 {
+    pinMode(switchPin, INPUT);
+    _switchPin= switchPin;
+    pinMode(LEDPin, OUTPUT);
+    _LEDPin = LEDPin;
     return;
 }
 
 void BluetoothConnectivity::setup()
 {
-    Serial.begin(115200);
     SerialBT.begin("CropMate"); //Bluetooth device name
     Serial.println("The device started, now you can pair it with bluetooth!");
+    digitalWrite(_LEDPin,HIGH);
+
 }
 
 void BluetoothConnectivity::BT_Write()
