@@ -50,9 +50,9 @@ DataStorage Data_S;
 
 // NPK Variables
 NPKSensor npk;
-int N = npk.Nitrogen();
-int P = npk.Phosphorus();
-int K = npk.Potassium();
+int N = 0;
+int P = 0;
+int K = 0;
 
 // Bluetooth Connectivity Variable
 BluetoothConnectivity BLC;
@@ -93,8 +93,18 @@ void DataReading(void *pvParameters){
       // Get Time - Time is being imported in the dataStorage Library
       String time =  Time_l.FormatTime();
       // Serial.println(String("DateTime::\t")+ (" ") + time);
+
+
+      // Reading N, P, K
+      delay(100);
+      N = npk.Nitrogen();
+      delay(100);
+      P = npk.Phosphorus();
+      delay(100);
+      K = npk.Potassium();
+
       // Store the data
-      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
    
 
 
@@ -243,7 +253,7 @@ bool SensorsStartSequence(){
 // ================= SETUP ====================
 void setup() {
   pinMode(15, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("======= SETUP =======");
   delay(500);
   digitalWrite(15,HIGH);

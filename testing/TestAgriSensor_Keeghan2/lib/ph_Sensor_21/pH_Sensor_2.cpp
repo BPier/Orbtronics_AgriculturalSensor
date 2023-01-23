@@ -1,4 +1,5 @@
 #include <pH_Sensor_2.h>
+#include <NPK_Sensor.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 
@@ -9,7 +10,7 @@
 const byte pH[] = {0x01,0x03, 0x00, 0x0d, 0x00, 0x01, 0x15, 0xC9};
 
 byte values[11];
-SoftwareSerial mod(14,12);
+// SoftwareSerial mod(14,12);
 
  byte pH_value(){
   digitalWrite(DE,HIGH);

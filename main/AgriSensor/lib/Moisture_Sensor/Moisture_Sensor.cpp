@@ -26,7 +26,6 @@ MoistureSensor::MoistureSensor(int pin, int powerpin)
 void MoistureSensor::setup()
 {
 
-    Serial.begin(115200);
     (dryValue,wetValue,DryValue_Mapped,WetValue_Mapped) = (3500,1500, 0, 100);
     Serial.println("[INFO] : The Moisture sensor is set up ");
     

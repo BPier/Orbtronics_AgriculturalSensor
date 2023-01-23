@@ -13,7 +13,7 @@ class DataStorage
     DataStorage();
     void setup();
     void read();
-    char* writedata(float pH, float Moisture, float Temp);
+    char* writedata(float pH, float Moisture, float Temp, int N, int P, int K);
     void listDir(fs::FS &fs, const char * dirname, uint8_t levels);
     void readFile(fs::FS &fs, const char * path);
     void writeFile(fs::FS &fs, const char * path, const char * message);
