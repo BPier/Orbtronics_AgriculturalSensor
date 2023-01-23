@@ -58,6 +58,9 @@ int K = npk.Potassium();
 #define BT_Switch_Pin 34
 #define BT_LED_Pin 26
 BluetoothConnectivity BLC(BT_Switch_Pin,BT_LED_Pin);
+bool BT_Activated = false;
+bool BT_Connected = false;
+
 
 DataStorage DS;
 
@@ -112,10 +115,24 @@ void DataReading(void *pvParameters){
 // ============== Bluetooth ================
 void BTConnect(void *pvParameters)
 {
+  byte BT_Switch_Pin_Status;
   String cmd1;
   while (1) {
-    Bluetooth_status="Bluetooth Pairing ...";
     delay(1);
+
+    if (BT_Activated == false){
+      delay(500);
+      BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+      Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
+      // if (digitalRead(BT_Switch_Pin)== HIGH){
+      //   Bluetooth_status = "Start Bluetooth";
+      //   delay(2000);
+      //   // BLC.setup();
+      //   Bluetooth_status="Bluetooth Pairing ...";
+      //   BT_Activated = true;
+
+      // }
+    }
 
     if (serialBT.available())
     { 
@@ -232,9 +249,7 @@ bool SensorsStartSequence(){
   delay(500);
   Time_l.setup();
   delay(1000);
-  DEBUG_OLED_MESSAGE = "Start Bluetooth";
-  delay(2000);
-  BLC.setup();
+
   
   delay(2000);
   npk.setup();
