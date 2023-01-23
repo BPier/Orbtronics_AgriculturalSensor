@@ -115,52 +115,57 @@ void DataReading(void *pvParameters){
 // ============== Bluetooth ================
 void BTConnect(void *pvParameters)
 {
+  long currentMillisBT= 0;
+  long previousMillisBT= 0;
   byte BT_Switch_Pin_Status;
   String cmd1;
   while (1) {
     delay(1);
-
-    if (BT_Activated == false){
-      delay(500);
+    Serial.printf("[INFO] Bluetooth Status: ");Serial.println(Bluetooth_status);
+    currentMillisBT = millis();
+    if (currentMillisBT - previousMillisBT > 500){     
       BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
-      Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
-      if (BT_Switch_Pin_Status){
-        Bluetooth_status = "Start Bluetooth";
-        delay(2000);
-        BLC.setup();
-        Bluetooth_status="Bluetooth Pairing ...";
-        BT_Activated = true;
+      if (BT_Activated == false){
+        BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+        Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
+        if (BT_Switch_Pin_Status){
+          Bluetooth_status = "Start Bluetooth";
+          delay(2000);
+          BLC.setup();
+          Bluetooth_status="Bluetooth Pairing ...";
+          BT_Activated = true;
 
-      }
-    } else if (BT_Activated == true)
-    {
-      if (!BT_Switch_Pin_Status){
-
-      }
-
-    }
-    
-
-
-    if (serialBT.available())
-    { 
-      char incomingChar = serialBT.read();
-      if (incomingChar != '\n'){
-        cmd1 += String(incomingChar);
-      }
-      else {
-        Serial.println(cmd1);
-        if(cmd1.indexOf("Send_file")== 0){
-          Serial.println(cmd1.indexOf("Send_file"));
-          BLC.BT_Write();
-          DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
         }
-        cmd1 = "";
+      } else if (BT_Activated == true)
+      {
+        if (!BT_Switch_Pin_Status){
+          Bluetooth_status = "Stop Bluetooth";
+          BT_Activated = false;
+          BLC.stop();
+        }
+
       }
+      
 
-    }
-    
 
+      if (serialBT.available())
+      { 
+        char incomingChar = serialBT.read();
+        if (incomingChar != '\n'){
+          cmd1 += String(incomingChar);
+        }
+        else {
+          Serial.println(cmd1);
+          if(cmd1.indexOf("Send_file")== 0){
+            Serial.println(cmd1.indexOf("Send_file"));
+            BLC.BT_Write();
+            DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
+          }
+          cmd1 = "";
+        }
+      }
+    }   
+    previousMillisBT = millis();
   }
 
 // ============== OLED Screen ================
@@ -275,7 +280,7 @@ void setup() {
   delay(50);
   // -------------- OLED --------------
   OLED.setup();
-  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 9, NULL, 1);
+  xTaskCreatePinnedToCore(OLEDScreenDisplay, "OLEDScreenDisplay", 5000, NULL, 5, NULL, 0);
   delay(300);
 
   Init_OK = SensorsStartSequence();
@@ -289,7 +294,7 @@ void setup() {
 
 
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
-  xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 9, NULL, 1);
+  xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 20, NULL, 1);
   xTaskCreatePinnedToCore(BatteryVoltage, "BatteryVoltage", 5000, NULL, 10, NULL, 1);
 
 }

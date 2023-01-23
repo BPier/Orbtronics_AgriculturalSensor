@@ -39,3 +39,10 @@ void BluetoothConnectivity::BT_Write()
 
   delay(20);
 }
+
+void BluetoothConnectivity::stop()
+{
+    SerialBT.end();
+    digitalWrite(_LEDPin,LOW);
+
+}
