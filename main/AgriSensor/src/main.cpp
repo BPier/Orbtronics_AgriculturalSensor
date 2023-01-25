@@ -17,6 +17,7 @@
 #include <SPI.h>
 #include <Adafruit_I2CDevice.h>
 
+#include <WiFi.h>
 #include <myWifiOTA.h>
 
 BluetoothSerial serialBT;
@@ -136,7 +137,9 @@ void BTConnect(void *pvParameters)
           Bluetooth_status = "Stop Bluetooth";
           BT_Activated = false;
           BLC.stop();
-          esp_err_t results = esp_wifi_stop();
+          if (WiFi.status() == WL_CONNECTED){
+            WiFi.disconnect();
+          }     
           vTaskDelay(5000 / portTICK_PERIOD_MS);
           Bluetooth_status = "Bluetooth OFF";
           delayBT = 2000;
