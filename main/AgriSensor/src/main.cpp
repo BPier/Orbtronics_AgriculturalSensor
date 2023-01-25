@@ -165,24 +165,28 @@ void BTConnect(void *pvParameters)
             BLC.BT_Write();
             DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
           }
+          if(cmd1.indexOf("Wifi-Connect")== 0){
+            Bluetooth_status = "Stop Bluetooth";
+            BT_Activated = false;
+            BLC.stop();
+            ota.setup();
+            ota.loop();
+          }
           cmd1 = "";
         }
 
-      if serialBT.read("Wifi-Connect\n"){
-        Bluetooth_status = "Stop Bluetooth";
-        BT_Activated = false;
-        BLC.stop();
-        ota.setup();
-        ota.loop();
-      }
-      }
-    // }   
+      // if (serialBT.read("Wifi-Connect\n")){
+        
+      // }
+      // }
+    }   
     // previousMillisBT = millis();
   }
+}
 
 // ============== OLED Screen ================
 
-}
+
 void OLEDScreenDisplay(void *pvParameters)
 {
   long currentMillisOLED= 0;
