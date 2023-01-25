@@ -17,6 +17,8 @@
 #include <SPI.h>
 #include <Adafruit_I2CDevice.h>
 
+#include <myWifiOTA.h>
+
 BluetoothSerial serialBT;
 
 // Battery Variables
@@ -60,6 +62,9 @@ int K = npk.Potassium();
 BluetoothConnectivity BLC(BT_Switch_Pin,BT_LED_Pin);
 bool BT_Activated = false;
 bool BT_Connected = false;
+
+// Wifi Variable
+myWifiOTA ota;
 
 
 DataStorage DS;
