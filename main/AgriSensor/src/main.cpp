@@ -148,8 +148,6 @@ void BTConnect(void *pvParameters)
 
       }
       
-
-
       if (serialBT.available())
       { 
         Bluetooth_status="Bluetooth Connected";
