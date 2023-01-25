@@ -54,9 +54,9 @@ DataStorage Data_S;
 
 // NPK Variables
 NPKSensor npk;
-int N = npk.Nitrogen();
-int P = npk.Phosphorus();
-int K = npk.Potassium();
+int N = 0;
+int P = 0;
+int K = 0;
 
 // Bluetooth Connectivity Variable
 #define BT_Switch_Pin 34
@@ -107,7 +107,7 @@ void DataReading(void *pvParameters){
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
     }
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    vTaskDelay(15000 / portTICK_PERIOD_MS);
   }
 }
 
@@ -117,6 +117,7 @@ void OTA_loop(void *pvParameters)
     ota.loop();
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
+
 }
 
 // ============== Bluetooth & Wifi ================
