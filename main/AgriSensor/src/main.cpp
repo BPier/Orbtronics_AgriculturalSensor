@@ -136,6 +136,7 @@ void BTConnect(void *pvParameters)
           Bluetooth_status = "Stop Bluetooth";
           BT_Activated = false;
           BLC.stop();
+          esp_err_t results = esp_wifi_stop();
           vTaskDelay(5000 / portTICK_PERIOD_MS);
           Bluetooth_status = "Bluetooth OFF";
           delayBT = 2000;
@@ -163,6 +164,14 @@ void BTConnect(void *pvParameters)
           }
           cmd1 = "";
         }
+
+      if serialBT.read("Wifi-Connect\n"){
+        Bluetooth_status = "Stop Bluetooth";
+        BT_Activated = false;
+        BLC.stop();
+        ota.setup();
+        ota.loop();
+      }
       }
     // }   
     // previousMillisBT = millis();
