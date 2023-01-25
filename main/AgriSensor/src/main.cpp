@@ -16,6 +16,10 @@
 #include <BluetoothSerial.h>
 #include <SPI.h>
 #include <Adafruit_I2CDevice.h>
+#include <esp_bt.h>
+
+#include <WiFi.h>
+#include <myWifiOTA.h>
 
 BluetoothSerial serialBT;
 
@@ -60,6 +64,11 @@ int K = 0;
 BluetoothConnectivity BLC(BT_Switch_Pin,BT_LED_Pin);
 bool BT_Activated = false;
 bool BT_Connected = false;
+bool Wifi_Activated = false;
+
+
+// Wifi Variable
+myWifiOTA ota;
 
 
 DataStorage DS;
@@ -72,6 +81,7 @@ Timelib Time_l;
 #define SPI_Power_Pin 19
 OLEDDisplay OLED(SPI_Power_Pin);
 const char* Bluetooth_status;
+const char* Wifi_status;
 static char Battery_OLED_MESSAGE[128];
 
 const char* DEBUG_OLED_MESSAGE;
@@ -82,26 +92,35 @@ bool Init_OK = false;
 void DataReading(void *pvParameters){
 
   while (1) {
- 
-    Serial.println("---------------------");
+    if (Wifi_Activated == false){
+      Serial.println("---------------------");
 
-    // Read and display the pH Value
-    pH_Value = pH_S.read();
-    // Read and Display the Volumetric Water Content
-    Moisture_Value = Moist_S.read();
-    // Read and Diplay the soil Temperature
-    Temperature_Value = Temp_S.read();
-    // Get Time - Time is being imported in the dataStorage Library
-    String time =  Time_l.FormatTime();
-    // Serial.println(String("DateTime::\t")+ (" ") + time);
-    // Store the data
-    Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
-
-
-    vTaskDelay(15000 / portTICK_PERIOD_MS);  }
+      // Read and display the pH Value
+      pH_Value = pH_S.read();
+      // Read and Display the Volumetric Water Content
+      Moisture_Value = Moist_S.read();
+      // Read and Diplay the soil Temperature
+      Temperature_Value = Temp_S.read();
+      // Get Time - Time is being imported in the dataStorage Library
+      String time =  Time_l.FormatTime();
+      // Serial.println(String("DateTime::\t")+ (" ") + time);
+      // Store the data
+      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+    }
+    vTaskDelay(15000 / portTICK_PERIOD_MS);
+  }
 }
 
-// ============== Bluetooth ================
+void OTA_loop(void *pvParameters)
+{
+  while (1) {
+    ota.loop();
+    vTaskDelay(50 / portTICK_PERIOD_MS);
+  }
+
+}
+
+// ============== Bluetooth & Wifi ================
 void BTConnect(void *pvParameters)
 {
   // long currentMillisBT= 0;
@@ -114,37 +133,47 @@ void BTConnect(void *pvParameters)
     // Serial.printf("[INFO] Bluetooth Status: ");Serial.println(Bluetooth_status);
     // currentMillisBT = millis();
     // if (currentMillisBT - previousMillisBT > 1000){     
+    BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+    if (BT_Activated == false && Wifi_Activated == false){
       BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
-      if (BT_Activated == false){
-        BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
-        // Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
-        if (BT_Switch_Pin_Status){
-          Bluetooth_status = "Start Bluetooth";
-          BLC.setup();
-          Bluetooth_status="Bluetooth Pairing ...";
-          BT_Activated = true;
-          delayBT = 100;
-        }
-      } else if (BT_Activated == true)
-      {
-        if (!BT_Switch_Pin_Status){
-          Bluetooth_status = "Stop Bluetooth";
-          BT_Activated = false;
-          BLC.stop();
-          vTaskDelay(5000 / portTICK_PERIOD_MS);
-          Bluetooth_status = "Bluetooth OFF";
-          delayBT = 2000;
-
-        }
-
+      // Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
+      if (BT_Switch_Pin_Status){
+        Bluetooth_status = "Start Bluetooth";
+        BLC.setup();
+        Bluetooth_status="Bluetooth Pairing ...";
+        BT_Activated = true;
+        Wifi_Activated = false;
+        delayBT = 100;
       }
-      
-
-
-      if (serialBT.available())
-      { 
+    } 
+    else if (BT_Activated == true){
+      if (!BT_Switch_Pin_Status){
+        Bluetooth_status = "Stop Bluetooth";
+        BT_Activated = false;
+        BLC.stop();
+        Serial.println("Bluetooth Disconnected");
+          if (Wifi_Activated = true){
+            WiFi.mode(WIFI_OFF);
+            Wifi_Activated = false;
+            Serial.println("WiFi Disconnected");
+          }     
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        Bluetooth_status = "Bluetooth OFF";
+        delayBT = 2000;
+      }
+      else if (Wifi_Activated == true){
+        if (!BT_Switch_Pin_Status){
+          Serial.println("Disconnecting Wifi");
+          WiFi.mode(WIFI_OFF);
+          Wifi_Activated = false;
+          Serial.println("WiFi Disconnected");
+        }     
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        Wifi_status = "Wifi OFF";
+        delayBT = 2000;
+      }
+      if (serialBT.available()){ 
         Bluetooth_status="Bluetooth Connected";
-
         char incomingChar = serialBT.read();
         if (incomingChar != '\n'){
           cmd1 += String(incomingChar);
@@ -156,16 +185,32 @@ void BTConnect(void *pvParameters)
             BLC.BT_Write();
             DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
           }
+          if(cmd1.indexOf("Wifi-Connect")== 0){
+            Bluetooth_status = "Stop Bluetooth";
+            BT_Activated = false;
+            Wifi_Activated = true;
+            BLC.stop();
+            Serial.println("Bluetooth Stop");
+            ota.setup();
+            Serial.println("Wifi Setup");
+            Serial.println("Wifi Connected");
+            IPAddress ip = WiFi.localIP();
+            const char* ipAddress = ip.toString().c_str();
+            Bluetooth_status = ipAddress;
+            xTaskCreatePinnedToCore(OTA_loop, "OTA_loop", 5000, NULL, 5, NULL, 1);
+          }
           cmd1 = "";
         }
-      }
-    // }   
+      } 
+    }
     // previousMillisBT = millis();
   }
+}
+
 
 // ============== OLED Screen ================
 
-}
+
 void OLEDScreenDisplay(void *pvParameters)
 {
   long currentMillisOLED= 0;
@@ -189,8 +234,9 @@ void OLEDScreenDisplay(void *pvParameters)
       previousMillisOLED = millis();
       OLED.Display();
     }
-    vTaskDelay(500 / portTICK_PERIOD_MS);  }
- 
+    vTaskDelay(500 / portTICK_PERIOD_MS);  
+  }
+  
 }
 void BatteryVoltage(void *pvParameters)
 {
@@ -232,7 +278,7 @@ void BatteryVoltage(void *pvParameters)
     }
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
- 
+  
 }
 
 bool SensorsStartSequence(){
@@ -295,6 +341,5 @@ void setup() {
 
 // ================= LOOP ======================
 void loop() {
-
 
 }

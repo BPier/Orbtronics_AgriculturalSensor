@@ -1,0 +1,18 @@
+// ============== WIFI Connect ============
+
+void WifiConnect (){
+
+  if (SerialBT.read("Wifi-Connect")){
+    Bluetooth_status = "Stop Bluetooth";
+    BT_Activated = false;
+    BLC.stop();
+    vTaskDelay(5000 / portTICK_PERIOD_MS);
+    Bluetooth_status = "Bluetooth OFF";
+    delayBT = 2000;
+    ota.setup();
+  }
+
+  else if (SerialBT.read("Wifi-Disconnect")){
+    
+  }
+}
