@@ -38,7 +38,7 @@ MoistureSensor Moist_S(Moist_Pin, Moist_Power_pin);
 int Moisture_Value = 0;
 
 // Temperature Variables
-#define Temp_Pin 16
+#define Temp_Pin 17
 #define Temp_Power_pin 18
 TempSensor Temp_S(Temp_Pin,Temp_Power_pin);
 float Temperature_Value = 0.0;
@@ -50,9 +50,9 @@ DataStorage Data_S;
 
 // NPK Variables
 NPKSensor npk;
-int N = npk.Nitrogen();
-int P = npk.Phosphorus();
-int K = npk.Potassium();
+int N = 0;
+int P = 0;
+int K = 0;
 
 // Bluetooth Connectivity Variable
 #define BT_Switch_Pin 34
