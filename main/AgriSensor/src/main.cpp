@@ -98,7 +98,7 @@ void DataReading(void *pvParameters){
     Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
 
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);  }
+    vTaskDelay(15000 / portTICK_PERIOD_MS);  }
 }
 
 // ============== Bluetooth ================
