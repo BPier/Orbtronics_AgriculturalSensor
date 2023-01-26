@@ -9,9 +9,13 @@
 class BluetoothConnectivity
 {
   public:
-    BluetoothConnectivity();
+    BluetoothConnectivity(int switchPin, int LEDPin);
     void setup();
     void BT_Write();
+    void stop();
+  private:
+    int _switchPin;
+    int _LEDPin;
 };
 
 #endif

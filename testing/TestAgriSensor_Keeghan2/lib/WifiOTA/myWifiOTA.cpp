@@ -1,13 +1,18 @@
+#include <myWifiOTA.h>
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#include <Arduino.h>
 
 const char* ssid = "TownHouse";
 const char* password = "Itsraining";
 
-void setup() {
-  Serial.begin(9600);
+myWifiOTA::myWifiOTA(){
+    return;
+}
+
+void myWifiOTA::setup(){
   Serial.println("Booting");
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -63,8 +68,6 @@ void setup() {
   Serial.println(WiFi.localIP());
 }
 
-void loop() {
-  ArduinoOTA.handle();
+void myWifiOTA::loop(){
+    ArduinoOTA.handle();
 }
-
- 

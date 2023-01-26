@@ -40,7 +40,7 @@ float TempSensor::read()
   delay(100);
   sensors.requestTemperatures(); 
   float ReturnTemp = sensors.getTempCByIndex(0);
-  digitalWrite(_powerpin,LOW);
+  // digitalWrite(_powerpin,LOW);
 
   return ReturnTemp;
   // return TempValue;
