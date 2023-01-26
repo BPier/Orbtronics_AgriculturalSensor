@@ -104,8 +104,22 @@ void DataReading(void *pvParameters){
       // Get Time - Time is being imported in the dataStorage Library
       String time =  Time_l.FormatTime();
       // Serial.println(String("DateTime::\t")+ (" ") + time);
+
+
+      // Reading N, P, K
+      delay(100);
+      N = npk.Nitrogen();
+      delay(100);
+      P = npk.Phosphorus();
+      delay(100);
+      K = npk.Potassium();
+
       // Store the data
-      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value);
+      Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
+   
+      // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
+      previousMillisDataReading = millis();
+
     }
     vTaskDelay(15000 / portTICK_PERIOD_MS);
   }
@@ -311,7 +325,7 @@ bool SensorsStartSequence(){
 // ================= SETUP ====================
 void setup() {
   pinMode(15, OUTPUT);
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("======= SETUP =======");
   delay(500);
   digitalWrite(15,HIGH);

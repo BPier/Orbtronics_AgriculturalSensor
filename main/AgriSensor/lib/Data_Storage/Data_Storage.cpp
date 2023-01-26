@@ -37,7 +37,7 @@ void DataStorage::read()
 
 }
 
-char* DataStorage::writedata(float pH, float Moisture, float Temp)
+char* DataStorage::writedata(float pH, float Moisture, float Temp, int N, int P, int K)
 {
   
     static char time[30];
@@ -60,11 +60,14 @@ char* DataStorage::writedata(float pH, float Moisture, float Temp)
     // );
     snprintf(Formated_text,
         255,
-        PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f}\r\n"),
+        PSTR("{\"Time\":\"%s\",\"pH\":%.2f,\"Moisture\":%.1f,\"Temp\":%.2f,\"N\":%d,\"P\":%d,\"K\":%d}\r\n"),
         Formated_TimeChar,
         pH,
         Moisture,
-        Temp
+        Temp,
+        N,
+        P,
+        K
     );
 
     char FileName[20] = "/2022-12_data.csv";
