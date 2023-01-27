@@ -215,16 +215,20 @@ void BTConnect(void *pvParameters)
             Serial.println(cmd1.indexOf("Send_file"));
             BLC.BT_Write();
             DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
-          }
-          if(cmd1.indexOf("Wifi-Connect")== 0){
-            // Bluetooth Command Example:
+          } 
+          else if(cmd1.indexOf("Wifi-Connect")== 0){
+            // Bluetooth Command 
+            // Example to connect to a new wifi network
             // Wifi-Connect -pass "Password1234" -SSID "WifiNetwork"
+            // Example to connect to the last wifi network used:
+            // Wifi-Connect
             int pass_pos = cmd1.indexOf("-pass");
             if (pass_pos!=-1){
               int first_quote = cmd1.indexOf("\"",pass_pos);
               int second_quote = cmd1.indexOf("\"",first_quote+1);
               Wifi_Password = cmd1.substring(first_quote+1,second_quote);
               Serial.println(Wifi_Password);
+              preferences.putString("Wifi_Password",Wifi_Password);
             }
             int SSID_pos = cmd1.indexOf("-SSID");
             if (SSID_pos!=-1){
@@ -232,7 +236,14 @@ void BTConnect(void *pvParameters)
               int second_quote = cmd1.indexOf("\"",first_quote+1);
               Wifi_SSID = cmd1.substring(first_quote+1,second_quote);
               Serial.println(Wifi_SSID);
+              preferences.putString("Wifi_SSID",Wifi_SSID);
             }
+            serialBT.println("Stopping Bluetooth and connecting to WIFI network ");
+            serialBT.println(Wifi_SSID);
+            serialBT.println(Wifi_Password);
+            serialBT.println("Bluetooth will be disconnected");
+            vTaskDelay(3000 / portTICK_PERIOD_MS);
+
             Bluetooth_status = "Stop Bluetooth";
             BT_Activated = false;
             Wifi_Activated = true;
@@ -249,7 +260,23 @@ void BTConnect(void *pvParameters)
             Serial.print("IP Address: ");Serial.println(Bluetooth_status);
 
             xTaskCreatePinnedToCore(OTA_loop, "OTA_loop", 5000, NULL, 5, NULL, 1);
+          }          
+          else if(cmd1.indexOf("Show-Wifi-Credentials")== 0){
+            serialBT.println(Wifi_SSID);
+            serialBT.println(Wifi_Password);
           }
+          else{
+            serialBT.print("The following command is not recognized: ");serialBT.println(cmd1);
+            serialBT.println("Available commands are :");
+            serialBT.println("Send_file");
+            serialBT.println("Wifi-Connect");
+            serialBT.println("Wifi-Connect -pass \"Password1234\" -SSID \"WifiNetwork\"");
+            serialBT.println("Show-Wifi-Credentials");
+
+
+
+          }
+
           cmd1 = "";
         }
       } 
@@ -352,12 +379,21 @@ bool SensorsStartSequence(){
   return true;
 }
 
+void getVariablesFromPreferences(){
+  Wifi_SSID = preferences.getString("Wifi_SSID","TownHouse");
+  Wifi_Password = preferences.getString("Wifi_Password","Itsraining");
+
+}
+
 // ================= SETUP ====================
 void setup() {
   pinMode(15, OUTPUT);
   Serial.begin(9600);
   Serial.println("======= SETUP =======");
   delay(500);
+  // Open Preference namespace
+  preferences.begin("CropMate", false);
+  getVariablesFromPreferences();
   digitalWrite(15,HIGH);
   delay(50);
   // -------------- OLED --------------
