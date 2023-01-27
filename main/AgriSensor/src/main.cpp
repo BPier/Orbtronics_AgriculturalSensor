@@ -54,7 +54,7 @@ float Temperature_Value = 0.0;
 
 // Data Storage Variable
 DataStorage Data_S;
-
+bool Reading_Done = false;
 
 
 // NPK Variables
@@ -122,7 +122,8 @@ void DataReading(void *pvParameters){
 
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
-   
+
+      Reading_Done = true;
       // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
       // previousMillisDataReading = millis();
 
@@ -385,6 +386,26 @@ void getVariablesFromPreferences(){
 
 }
 
+void DeepSleep(void *pvParameters){
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1);
+  esp_sleep_enable_timer_wakeup(30 * 1000000);
+  while (1)
+  {
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    if(Reading_Done){
+      bool BT_switch = digitalRead(BT_Switch_Pin);
+      if (!BT_switch){
+        Serial.println("Going to sleep");
+        DEBUG_OLED_MESSAGE="Going to sleep for 30s";
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+        esp_deep_sleep_start();
+      }
+    }
+  }
+  
+  
+}
 // ================= SETUP ====================
 void setup() {
   pinMode(15, OUTPUT);
@@ -414,6 +435,8 @@ void setup() {
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 20, NULL, 1);
   xTaskCreatePinnedToCore(BatteryVoltage, "BatteryVoltage", 5000, NULL, 10, NULL, 1);
+  xTaskCreatePinnedToCore(DeepSleep, "DeepSleep", 5000, NULL, 10, NULL, 1);
+
 
 }
 
