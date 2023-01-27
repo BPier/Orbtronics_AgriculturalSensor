@@ -305,7 +305,7 @@ void OLEDScreenDisplay(void *pvParameters)
     OLED.WriteLine(Bluetooth_status,6);
     OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
     if (Init_OK){
-      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value,N,P,K);
     } else{
       OLED.WriteLine("Initializing Sensor..",1);
 
@@ -389,7 +389,7 @@ void getVariablesFromPreferences(){
 
 void DeepSleep(void *pvParameters){
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1);
-  esp_sleep_enable_timer_wakeup(30 * 1000000);
+  esp_sleep_enable_timer_wakeup(30*60 * 1000000);
   while (1)
   {
     vTaskDelay(2000 / portTICK_PERIOD_MS);
@@ -397,8 +397,8 @@ void DeepSleep(void *pvParameters){
       bool BT_switch = digitalRead(BT_Switch_Pin);
       if (!BT_switch){
         Serial.println("Going to sleep");
-        DEBUG_OLED_MESSAGE="Going to sleep for 30s";
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        DEBUG_OLED_MESSAGE="Sleep for 30min";
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
 
         esp_deep_sleep_start();
       }
