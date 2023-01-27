@@ -308,6 +308,7 @@ void OLEDScreenDisplay(void *pvParameters)
       OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
     } else{
       OLED.WriteLine("Initializing Sensor..",1);
+
     }
     OLED.Display();
     

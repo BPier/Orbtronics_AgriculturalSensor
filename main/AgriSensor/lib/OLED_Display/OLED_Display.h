@@ -12,7 +12,7 @@ class OLEDDisplay
     void WriteLine(const char* Text, int line);
     void Clear();
     void Display();
-    void CurrentValues(const float pH, const int Moisture, const float Temp);
+    void CurrentValues(const float pH, const int Moisture, const float Temp, const int N, const int P, const int K);
   private:
     int _powerpin;
 };

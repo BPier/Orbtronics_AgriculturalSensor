@@ -62,7 +62,7 @@ void OLEDDisplay::Display(){
   }
 }
 
-void OLEDDisplay::CurrentValues(const float pH, const int Moisture, const float Temp){
+void OLEDDisplay::CurrentValues(const float pH, const int Moisture, const float Temp, const int N, const int P, const int K){
   char CharText[50];
   if(OLED_Connected){
     // Clear();
@@ -70,11 +70,11 @@ void OLEDDisplay::CurrentValues(const float pH, const int Moisture, const float 
     char time[50];
     Formated_time.toCharArray(time,50);
     WriteLine(time,1);
-    sprintf(CharText,"Temperature: %.1fC",Temp);
+    sprintf(CharText,"T:  %00.1fC   N: %d",Temp, N);
     WriteLine(CharText,2);
-    sprintf(CharText,"pH: %.1f",pH);
+    sprintf(CharText,"pH: %00.1f     P: %d",pH, P);
     WriteLine(CharText,3);
-    sprintf(CharText,"Moisture: %d%%%",Moisture);
+    sprintf(CharText,"M:  %00d%%     K: %d",Moisture, K);
     WriteLine(CharText,4);
     // Display();
   }
