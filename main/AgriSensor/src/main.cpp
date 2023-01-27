@@ -156,15 +156,15 @@ void BTConnect(void *pvParameters)
     // currentMillisBT = millis();
     // if (currentMillisBT - previousMillisBT > 1000){     
     // ======== DEBUG ==========
-      BT_Switch_Pin_Status=HIGH;
+      // BT_Switch_Pin_Status=HIGH;
     // -------------------------
-    // BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+    BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
     // =========================
     if (BT_Activated == false && Wifi_Activated == false){
       // ======== DEBUG ==========
-      BT_Switch_Pin_Status=HIGH;
+      // BT_Switch_Pin_Status=HIGH;
       // -------------------------
-      // BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+      BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
       // =========================
 
       // Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
@@ -405,7 +405,7 @@ void setup() {
   DEBUG_OLED_MESSAGE = "All OK";
 
   // [DEBUG] Delete File
-  Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
+  // Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
   Serial.println("=====================");
 
 
