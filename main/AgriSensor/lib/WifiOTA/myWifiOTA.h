@@ -11,7 +11,7 @@ class myWifiOTA
   public:
 
     myWifiOTA();
-    void setup();
+    String setup(String SSID, String Password);
     void loop();
 };
 

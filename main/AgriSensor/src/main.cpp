@@ -21,6 +21,11 @@
 #include <WiFi.h>
 #include <myWifiOTA.h>
 
+#include <Preferences.h>
+Preferences preferences;
+String Wifi_SSID="";
+String Wifi_Password="";
+
 BluetoothSerial serialBT;
 
 // Battery Variables
@@ -49,7 +54,7 @@ float Temperature_Value = 0.0;
 
 // Data Storage Variable
 DataStorage Data_S;
-
+bool Reading_Done = false;
 
 
 // NPK Variables
@@ -83,6 +88,7 @@ OLEDDisplay OLED(SPI_Power_Pin);
 const char* Bluetooth_status;
 const char* Wifi_status;
 static char Battery_OLED_MESSAGE[128];
+String ip_Address;
 
 const char* DEBUG_OLED_MESSAGE;
 bool Init_OK = false;
@@ -116,7 +122,8 @@ void DataReading(void *pvParameters){
 
       // Store the data
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
-   
+
+      Reading_Done = true;
       // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
       // previousMillisDataReading = millis();
 
@@ -129,7 +136,7 @@ void OTA_loop(void *pvParameters)
 {
   while (1) {
     ota.loop();
-    vTaskDelay(50 / portTICK_PERIOD_MS);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 
 }
@@ -142,14 +149,25 @@ void BTConnect(void *pvParameters)
   byte BT_Switch_Pin_Status;
   String cmd1;
   int delayBT = 2000;
+
+
   while (1) {
     vTaskDelay(delayBT / portTICK_PERIOD_MS);
     // Serial.printf("[INFO] Bluetooth Status: ");Serial.println(Bluetooth_status);
     // currentMillisBT = millis();
     // if (currentMillisBT - previousMillisBT > 1000){     
+    // ======== DEBUG ==========
+      // BT_Switch_Pin_Status=HIGH;
+    // -------------------------
     BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+    // =========================
     if (BT_Activated == false && Wifi_Activated == false){
+      // ======== DEBUG ==========
+      // BT_Switch_Pin_Status=HIGH;
+      // -------------------------
       BT_Switch_Pin_Status = digitalRead(BT_Switch_Pin);
+      // =========================
+
       // Serial.printf("[INFO] BT_Switch_Pin = %d\n",BT_Switch_Pin_Status);
       if (BT_Switch_Pin_Status){
         Bluetooth_status = "Start Bluetooth";
@@ -198,21 +216,68 @@ void BTConnect(void *pvParameters)
             Serial.println(cmd1.indexOf("Send_file"));
             BLC.BT_Write();
             DS.sendFileBT(SPIFFS, "/2022-12_data.csv");
-          }
-          if(cmd1.indexOf("Wifi-Connect")== 0){
+          } 
+          else if(cmd1.indexOf("Wifi-Connect")== 0){
+            // Bluetooth Command 
+            // Example to connect to a new wifi network
+            // Wifi-Connect -pass "Password1234" -SSID "WifiNetwork"
+            // Example to connect to the last wifi network used:
+            // Wifi-Connect
+            int pass_pos = cmd1.indexOf("-pass");
+            if (pass_pos!=-1){
+              int first_quote = cmd1.indexOf("\"",pass_pos);
+              int second_quote = cmd1.indexOf("\"",first_quote+1);
+              Wifi_Password = cmd1.substring(first_quote+1,second_quote);
+              Serial.println(Wifi_Password);
+              preferences.putString("Wifi_Password",Wifi_Password);
+            }
+            int SSID_pos = cmd1.indexOf("-SSID");
+            if (SSID_pos!=-1){
+              int first_quote = cmd1.indexOf("\"",SSID_pos);
+              int second_quote = cmd1.indexOf("\"",first_quote+1);
+              Wifi_SSID = cmd1.substring(first_quote+1,second_quote);
+              Serial.println(Wifi_SSID);
+              preferences.putString("Wifi_SSID",Wifi_SSID);
+            }
+            serialBT.println("Stopping Bluetooth and connecting to WIFI network ");
+            serialBT.println(Wifi_SSID);
+            serialBT.println(Wifi_Password);
+            serialBT.println("Bluetooth will be disconnected");
+            vTaskDelay(3000 / portTICK_PERIOD_MS);
+
             Bluetooth_status = "Stop Bluetooth";
             BT_Activated = false;
             Wifi_Activated = true;
             BLC.stop();
             Serial.println("Bluetooth Stop");
-            ota.setup();
+            Bluetooth_status = "Start Wifi";
+            ip_Address = ota.setup(Wifi_SSID,Wifi_Password);
             Serial.println("Wifi Setup");
             Serial.println("Wifi Connected");
-            IPAddress ip = WiFi.localIP();
-            const char* ipAddress = ip.toString().c_str();
-            Bluetooth_status = ipAddress;
+            // IPAddress ip = WiFi.localIP();
+            // ip_Address = ip.toString().c_str();
+            Bluetooth_status = ip_Address.c_str();
+
+            Serial.print("IP Address: ");Serial.println(Bluetooth_status);
+
             xTaskCreatePinnedToCore(OTA_loop, "OTA_loop", 5000, NULL, 5, NULL, 1);
+          }          
+          else if(cmd1.indexOf("Show-Wifi-Credentials")== 0){
+            serialBT.println(Wifi_SSID);
+            serialBT.println(Wifi_Password);
           }
+          else{
+            serialBT.print("The following command is not recognized: ");serialBT.println(cmd1);
+            serialBT.println("Available commands are :");
+            serialBT.println("Send_file");
+            serialBT.println("Wifi-Connect");
+            serialBT.println("Wifi-Connect -pass \"Password1234\" -SSID \"WifiNetwork\"");
+            serialBT.println("Show-Wifi-Credentials");
+
+
+
+          }
+
           cmd1 = "";
         }
       } 
@@ -227,42 +292,38 @@ void BTConnect(void *pvParameters)
 
 void OLEDScreenDisplay(void *pvParameters)
 {
-  long currentMillisOLED= 0;
-  long previousMillisOLED= 0;
+
   OLED.Clear();
   OLED.Display();
-  vTaskDelay(1000 / portTICK_PERIOD_MS);  while (1)
+  vTaskDelay(1000 / portTICK_PERIOD_MS); 
+  while (1)
   {
-    currentMillisOLED = millis();
-    if (currentMillisOLED - previousMillisOLED > 500){
-      OLED.Clear();   
-      OLED.WriteLine(Battery_OLED_MESSAGE,5);
-  
-      OLED.WriteLine(Bluetooth_status,6);
-      OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
-      if (Init_OK){
-        OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
-      } else{
-        OLED.WriteLine("Initializing Sensor..",1);
-      }
-      previousMillisOLED = millis();
-      OLED.Display();
+
+    OLED.Clear();   
+    OLED.WriteLine(Battery_OLED_MESSAGE,5);
+
+    OLED.WriteLine(Bluetooth_status,6);
+    OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
+    if (Init_OK){
+      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+    } else{
+      OLED.WriteLine("Initializing Sensor..",1);
+
     }
+    OLED.Display();
+    
     vTaskDelay(500 / portTICK_PERIOD_MS);  
   }
   
 }
 void BatteryVoltage(void *pvParameters)
 {
-  long currentMillisBatteryVoltage= 0;
-  long previousMillisBatteryVoltage = 0;
+
   float Battery_Voltage = 0.0;
   int Battery_Level = 0;
 
   while (1)
   {
-    currentMillisBatteryVoltage = millis();
-    if (currentMillisBatteryVoltage - previousMillisBatteryVoltage > 500){
       // Battery_Voltage = map(analogRead(33), 0.0f, 4095.0f, 0, 3.3);
       // Battery_Voltage = analogRead(33);
       // Serial.print("Battery analog: ");
@@ -279,7 +340,6 @@ void BatteryVoltage(void *pvParameters)
         Battery_Voltage/1000,
         Battery_Level
       );
-      previousMillisBatteryVoltage = millis();
       // if(Battery_Level<80){
       //   DEBUG_OLED_MESSAGE = "LOW BAT - Turning OFF";
       //   delay(5000);
@@ -289,7 +349,6 @@ void BatteryVoltage(void *pvParameters)
       //   esp_deep_sleep_start();
       // }
         
-    }
     vTaskDelay(500 / portTICK_PERIOD_MS);
   }
   
@@ -322,12 +381,41 @@ bool SensorsStartSequence(){
   return true;
 }
 
+void getVariablesFromPreferences(){
+  Wifi_SSID = preferences.getString("Wifi_SSID","TownHouse");
+  Wifi_Password = preferences.getString("Wifi_Password","Itsraining");
+
+}
+
+void DeepSleep(void *pvParameters){
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1);
+  esp_sleep_enable_timer_wakeup(30 * 1000000);
+  while (1)
+  {
+    vTaskDelay(2000 / portTICK_PERIOD_MS);
+    if(Reading_Done){
+      bool BT_switch = digitalRead(BT_Switch_Pin);
+      if (!BT_switch){
+        Serial.println("Going to sleep");
+        DEBUG_OLED_MESSAGE="Going to sleep for 30s";
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+
+        esp_deep_sleep_start();
+      }
+    }
+  }
+  
+  
+}
 // ================= SETUP ====================
 void setup() {
   pinMode(15, OUTPUT);
   Serial.begin(9600);
   Serial.println("======= SETUP =======");
   delay(500);
+  // Open Preference namespace
+  preferences.begin("CropMate", false);
+  getVariablesFromPreferences();
   digitalWrite(15,HIGH);
   delay(50);
   // -------------- OLED --------------
@@ -339,7 +427,7 @@ void setup() {
   DEBUG_OLED_MESSAGE = "All OK";
 
   // [DEBUG] Delete File
-  Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
+  // Data_S.deleteFile(SPIFFS,"/2022-12_data.csv");
   Serial.println("=====================");
 
 
@@ -348,6 +436,8 @@ void setup() {
   xTaskCreatePinnedToCore(DataReading, "DataReading", 16000, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(BTConnect, "BTConnect", 5000, NULL, 20, NULL, 1);
   xTaskCreatePinnedToCore(BatteryVoltage, "BatteryVoltage", 5000, NULL, 10, NULL, 1);
+  xTaskCreatePinnedToCore(DeepSleep, "DeepSleep", 5000, NULL, 10, NULL, 1);
+
 
 }
 
