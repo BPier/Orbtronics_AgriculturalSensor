@@ -118,7 +118,7 @@ void DataReading(void *pvParameters){
       Data_S.writedata(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
    
       // Data_S.readFile(SPIFFS, "/2022-12_data.csv");
-      previousMillisDataReading = millis();
+      // previousMillisDataReading = millis();
 
     }
     vTaskDelay(15000 / portTICK_PERIOD_MS);
@@ -241,7 +241,7 @@ void OLEDScreenDisplay(void *pvParameters)
       OLED.WriteLine(Bluetooth_status,6);
       OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
       if (Init_OK){
-        OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+        OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value, N, P, K);
       } else{
         OLED.WriteLine("Initializing Sensor..",1);
       }
