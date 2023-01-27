@@ -44,7 +44,7 @@ void OLEDDisplay::WriteLine(const char* Text, int line){
     int cursorX=0;
     int cursorY=line*8;
     display.setCursor(cursorX, cursorY);
-    display.println(Text);
+    display.print(Text);
   }
 
 
