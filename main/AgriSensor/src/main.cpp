@@ -293,7 +293,11 @@ void BTConnect(void *pvParameters)
               String NewSleepTime = cmd1.substring(first_quote+1,second_quote);
               int NewSleepTimeInt = NewSleepTime.toInt();
               SleepTimeSeconds = NewSleepTimeInt;
-              preferences.putInt("SleepTimeSeconds",NewSleepTimeInt);
+              preferences.begin("CropMate", false);
+
+              preferences.putInt("SleepTimeS",NewSleepTimeInt);
+              preferences.end();
+
               Serial.println(NewSleepTimeInt);
               serialBT.print("Sleep Time set to [s] : ");serialBT.println(NewSleepTimeInt);
 
@@ -420,10 +424,14 @@ bool SensorsStartSequence(){
 }
 
 void getVariablesFromPreferences(){
-  Wifi_SSID = preferences.getString("Wifi_SSID","TownHouse");
-  Wifi_Password = preferences.getString("Wifi_Password","Itsraining");
-  SleepTimeSeconds = preferences.getInt("SleepTimeSeconds",1800);
+  preferences.begin("CropMate", false);
 
+  Wifi_SSID = preferences.getString("Wifi_SSID","");
+  Wifi_Password = preferences.getString("Wifi_Password","");
+  SleepTimeSeconds = preferences.getInt("SleepTimeS",1800);
+  Serial.printf("Wifi_SSID = %s, Wifi_password = %s, SleepTimeS = %d",Wifi_SSID.c_str(),Wifi_Password.c_str(),SleepTimeSeconds);
+  preferences.end();
+  
 }
 
 void DeepSleep(void *pvParameters){
@@ -463,7 +471,6 @@ void setup() {
   Serial.println("======= SETUP =======");
   delay(500);
   // Open Preference namespace
-  preferences.begin("CropMate", false);
   getVariablesFromPreferences();
   digitalWrite(15,HIGH);
   delay(50);
