@@ -12,6 +12,8 @@ class Timelib
     void setup();
     String FormatTime();
     DateTime GetTime();
+    void Adjust(String ISODatetime);
+
 };
 
 #endif
