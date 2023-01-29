@@ -436,13 +436,14 @@ void getVariablesFromPreferences(){
 
 void DeepSleep(void *pvParameters){
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1);
-  esp_sleep_enable_timer_wakeup(SleepTimeSeconds * 1000000);
   while (1)
   {
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     if(Reading_Done){
       bool BT_switch = digitalRead(BT_Switch_Pin);
       if (!BT_switch){
+        esp_sleep_enable_timer_wakeup(SleepTimeSeconds * 1000000);
+
         Serial.println("Going to sleep");
         snprintf(DEBUG_OLED_MESSAGE_Static,
           255,
