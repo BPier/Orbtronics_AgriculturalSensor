@@ -443,8 +443,13 @@ void DeepSleep(void *pvParameters){
         );
         DEBUG_OLED_MESSAGE = DEBUG_OLED_MESSAGE_Static;
         vTaskDelay(5000 / portTICK_PERIOD_MS);
-
-        esp_deep_sleep_start();
+        BT_switch = digitalRead(BT_Switch_Pin);
+        if (!BT_switch){
+          esp_deep_sleep_start();
+        }
+        else {
+          DEBUG_OLED_MESSAGE = "";
+        }
       }
     }
   }
