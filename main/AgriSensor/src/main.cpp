@@ -266,6 +266,19 @@ void BTConnect(void *pvParameters)
             serialBT.println(Wifi_SSID);
             serialBT.println(Wifi_Password);
           }
+          else if(cmd1.indexOf("Set-Time")== 0){
+            int time_pos = cmd1.indexOf("-time");
+            if (time_pos!=-1){
+              int first_quote = cmd1.indexOf("\"",time_pos);
+              int second_quote = cmd1.indexOf("\"",first_quote+1);
+              String NewTime = cmd1.substring(first_quote+1,second_quote);
+              Serial.println(NewTime);
+              Time_l.Adjust(NewTime);
+              serialBT.print("Current Time set to : ");serialBT.println(NewTime);
+
+
+            }
+          }
           else{
             serialBT.print("The following command is not recognized: ");serialBT.println(cmd1);
             serialBT.println("Available commands are :");
@@ -273,6 +286,8 @@ void BTConnect(void *pvParameters)
             serialBT.println("Wifi-Connect");
             serialBT.println("Wifi-Connect -pass \"Password1234\" -SSID \"WifiNetwork\"");
             serialBT.println("Show-Wifi-Credentials");
+            serialBT.println("Set-Time -time \"1970-01-01T00:00:00\"");
+
 
 
 
