@@ -91,7 +91,13 @@ static char Battery_OLED_MESSAGE[128];
 String ip_Address;
 
 const char* DEBUG_OLED_MESSAGE;
+static char DEBUG_OLED_MESSAGE_Static[128];
+
 bool Init_OK = false;
+
+
+// Sleep Variable
+int SleepTimeSeconds = 1800;
 
 // ============== Data Reading ================
 // Read the Values from the sensors, stores is in variables and write in in file
@@ -266,6 +272,38 @@ void BTConnect(void *pvParameters)
             serialBT.println(Wifi_SSID);
             serialBT.println(Wifi_Password);
           }
+          else if(cmd1.indexOf("Set-Time")== 0){
+            int time_pos = cmd1.indexOf("-time");
+            if (time_pos!=-1){
+              int first_quote = cmd1.indexOf("\"",time_pos);
+              int second_quote = cmd1.indexOf("\"",first_quote+1);
+              String NewTime = cmd1.substring(first_quote+1,second_quote);
+              Serial.println(NewTime);
+              Time_l.Adjust(NewTime);
+              serialBT.print("Current Time set to : ");serialBT.println(NewTime);
+
+
+            }
+          }
+          else if(cmd1.indexOf("Set-Sleep-Time")== 0){
+            int sleeptime_pos = cmd1.indexOf("-seconds");
+            if (sleeptime_pos!=-1){
+              int first_quote = cmd1.indexOf(" ",sleeptime_pos);
+              int second_quote = cmd1.indexOf(" ",first_quote+1);
+              String NewSleepTime = cmd1.substring(first_quote+1,second_quote);
+              int NewSleepTimeInt = NewSleepTime.toInt();
+              SleepTimeSeconds = NewSleepTimeInt;
+              preferences.begin("CropMate", false);
+
+              preferences.putInt("SleepTimeS",NewSleepTimeInt);
+              preferences.end();
+
+              Serial.println(NewSleepTimeInt);
+              serialBT.print("Sleep Time set to [s] : ");serialBT.println(NewSleepTimeInt);
+
+
+            }
+          }
           else{
             serialBT.print("The following command is not recognized: ");serialBT.println(cmd1);
             serialBT.println("Available commands are :");
@@ -273,6 +311,10 @@ void BTConnect(void *pvParameters)
             serialBT.println("Wifi-Connect");
             serialBT.println("Wifi-Connect -pass \"Password1234\" -SSID \"WifiNetwork\"");
             serialBT.println("Show-Wifi-Credentials");
+            serialBT.println("Set-Time -time \"1970-01-01T00:00:00\"");
+            serialBT.println("Set-Sleep-Time -seconds 1800s");
+
+
 
 
 
@@ -305,7 +347,7 @@ void OLEDScreenDisplay(void *pvParameters)
     OLED.WriteLine(Bluetooth_status,6);
     OLED.WriteLine(DEBUG_OLED_MESSAGE,7);
     if (Init_OK){
-      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value);
+      OLED.CurrentValues(pH_Value,Moisture_Value,Temperature_Value,N,P,K);
     } else{
       OLED.WriteLine("Initializing Sensor..",1);
 
@@ -382,25 +424,41 @@ bool SensorsStartSequence(){
 }
 
 void getVariablesFromPreferences(){
-  Wifi_SSID = preferences.getString("Wifi_SSID","TownHouse");
-  Wifi_Password = preferences.getString("Wifi_Password","Itsraining");
+  preferences.begin("CropMate", false);
 
+  Wifi_SSID = preferences.getString("Wifi_SSID","");
+  Wifi_Password = preferences.getString("Wifi_Password","");
+  SleepTimeSeconds = preferences.getInt("SleepTimeS",1800);
+  Serial.printf("Wifi_SSID = %s, Wifi_password = %s, SleepTimeS = %d",Wifi_SSID.c_str(),Wifi_Password.c_str(),SleepTimeSeconds);
+  preferences.end();
+  
 }
 
 void DeepSleep(void *pvParameters){
   esp_sleep_enable_ext0_wakeup(GPIO_NUM_34, 1);
-  esp_sleep_enable_timer_wakeup(30 * 1000000);
   while (1)
   {
     vTaskDelay(2000 / portTICK_PERIOD_MS);
     if(Reading_Done){
       bool BT_switch = digitalRead(BT_Switch_Pin);
       if (!BT_switch){
-        Serial.println("Going to sleep");
-        DEBUG_OLED_MESSAGE="Going to sleep for 30s";
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        esp_sleep_enable_timer_wakeup(SleepTimeSeconds * 1000000);
 
-        esp_deep_sleep_start();
+        Serial.println("Going to sleep");
+        snprintf(DEBUG_OLED_MESSAGE_Static,
+          255,
+          PSTR("Sleep for %ds"),
+          SleepTimeSeconds
+        );
+        DEBUG_OLED_MESSAGE = DEBUG_OLED_MESSAGE_Static;
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        BT_switch = digitalRead(BT_Switch_Pin);
+        if (!BT_switch){
+          esp_deep_sleep_start();
+        }
+        else {
+          DEBUG_OLED_MESSAGE = "";
+        }
       }
     }
   }
@@ -414,7 +472,6 @@ void setup() {
   Serial.println("======= SETUP =======");
   delay(500);
   // Open Preference namespace
-  preferences.begin("CropMate", false);
   getVariablesFromPreferences();
   digitalWrite(15,HIGH);
   delay(50);

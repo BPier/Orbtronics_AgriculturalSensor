@@ -72,3 +72,12 @@ DateTime Timelib::GetTime()
   return time;
 }
 
+void Timelib::Adjust(String ISODatetime)
+{
+  // rtc.adjust(DateTime(year, month, day, hour, minute, seconds));
+  // 1970-01-01T00:00:00
+  rtc.adjust(DateTime(ISODatetime.c_str()));
+
+  return;
+}
+
